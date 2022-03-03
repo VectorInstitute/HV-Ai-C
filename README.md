@@ -1,4 +1,4 @@
-# Model-Based Reinforcement Learning for Datacentre HVAC Control
+# Model-Based Reinforcement Learning for Energy Efficient Datacentre HVAC Control
 
 This repository introduces a reference solution for training a **Model-Based Reinforcement Learning** (MBRL) agent to control the HVAC system in a small-room datacentre such that **energy utilization is minimized**. When this agent was piloted in a small site, cooling savings of 18% (excluding IT load) and heating savings of 10% (excluding IT load) were realized, for a combined estimated annual electricity savings of 11.5%.  Therefore, potentially this agent can be implemented to reduce electricity costs as well as harmful greenhouse gas emissions that contribute to climate change.
 
