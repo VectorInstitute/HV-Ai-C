@@ -90,7 +90,7 @@ For each **episode**:
 &emsp;For each **S<sub>t</sub>** and **A<sub>t</sub>**:\
 &emsp;&emsp;take action **A<sub>t</sub>**, observe **S<sub>t+1</sub>** and **R<sub>t+1</sub>**\
 &emsp;&emsp;**S<sub>t+1</sub>**=(**Temp<sub>t+1, float</sub>**, **HVAC<sub>t+1</sub>**) where **Temp** is a slowly changing variable\
-&emsp;&emsp;**p<sub>0</sub>**= (**Temp<sub>t+1, Discrete, high</sub>** - **Temp<sub>t+1, float</sub>**)/(**Temp<sub>t+1, Discrete, high</sub>** - **Temp<sub>t+1, ,Discrete,low</sub>**)  Where (**Temp<sub>t+1, Discrete, high</sub>** - **Temp<sub>t+1,Discrete, low</sub>**) is the unit size of the **Temp<sub>Discrete</sub>**.
+&emsp;&emsp;**p<sub>0</sub>**= (**Temp<sub>t+1, Discrete, high</sub>** - **Temp<sub>t+1, float</sub>**)/(**Temp<sub>t+1, Discrete, high</sub>** - **Temp<sub>t+1, ,Discrete,low</sub>**)  Where (**Temp<sub>t+1, Discrete, high</sub>** - **Temp<sub>t+1,Discrete, low</sub>**) is the unit size of the **Temp<sub>Discrete</sub>**. \
 &emsp;&emsp;**p<sub>1</sub>**= 1-**p<sub>0</sub>**\
 &emsp;&emsp;**v<sub>0</sub>**= v(**Temp<sub>t+1, Discrete, low</sub>**, **HVAC<sub>t+1</sub>**)\
 &emsp;&emsp;**v<sub>1</sub>**= v(**Temp<sub>t+1, Discrete, high</sub>**, **HVAC<sub>t+1</sub>**)\
