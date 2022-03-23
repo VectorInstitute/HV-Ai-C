@@ -404,7 +404,7 @@ class Environment(gym.Env):
         Returns:
             Power consumed
         """
-        if not hvac:
+        if hvac is None:
             hvac = self.hvac
         power = self.dic_status_to_power[hvac]
         return power
@@ -467,9 +467,9 @@ class Environment(gym.Env):
         Returns:
             Next state and current reward
         """
-        if not temp:
+        if temp is None:
             temp = self.temp
-        if not hvac:
+        if hvac is None:
             hvac = self.hvac
 
         # calculate next state

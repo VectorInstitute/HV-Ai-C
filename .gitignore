@@ -1,0 +1,8 @@
+# Log files
+log/
+
+# Byte-compiled / optimized / DLL files
+src/__pycache__/
+
+# Output files
+models/

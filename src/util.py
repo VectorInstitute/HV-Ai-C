@@ -8,7 +8,7 @@ import os
 import configparser
 
 
-CONSTANT_NINF = float("-inf")
+CONSTANT_NINF = -9e99
 
 
 def get_dir_path(dir_name: str) -> str:
