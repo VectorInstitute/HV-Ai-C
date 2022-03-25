@@ -43,11 +43,11 @@ This state variable tracks the status of the HVAC system with the possible discr
 **["status_idle", "status_compressor_on", "status_freecool_on", "status_heater_on"]**
 
 ### Actions
-The possible actions from a given state are:\
+The possible set of actions from a given state are:\
 \
 **["action_idle", "action_compressor_on", "action_freecool_on", "action_heater_on"]**\
 \
-It should be noted, however, that not all actions are possible at every state; for instance, if we are at or near maximum allowable temperature, we cannot select "action_heater_on". Such illegal state-action pairs are not allowed during training.
+It should be noted, however, that not all actions are possible at every state; for instance, if we are at or near a maximum allowable temperature, we cannot select "action_heater_on". Such illegal state-action pairs are not allowed during training.
 
 ### Rewards
 There are three different types of negative reward associated with the temperature control environment:\
