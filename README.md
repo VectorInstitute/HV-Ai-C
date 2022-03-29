@@ -76,8 +76,7 @@ The value of these parameters should be saved in `environment_params.cfg`.
 
 **Note:** code to compute the parameters required for `environment_params.cfg` using historical HVAC data is _not included_ in the initial release of this reference solution, since the current version has not been adapted to generalize outside of the TELUS environment. Replication of the approach is straightforward using the instructions just above, and reference code to do this will be provided in a subsequent release. 
 
-# Hyperspace 
-bour Penetration Dynamic Programming
+# Hyperspace Neighbour Penetration Dynamic Programming
 
 Below is the series of steps the Dynamic Programming algorithm follows to update the state-action Q table to learn an agent with optimal behaviour given the environment.
 
