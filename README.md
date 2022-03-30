@@ -1,3 +1,5 @@
+English | [Français](#apprentissage-par-renforcement-basé-sur-un-modèle-pour-un-contrôle-cvc-écoénergétique-dans-les-centres-de-données)
+
 # Model-Based Reinforcement Learning for Energy Efficient Data Centre HVAC Control
 
 This repository introduces a reference solution for training a **Model-Based Reinforcement Learning** (MBRL) agent to control the HVAC system in a small-room datacentre such that **energy utilization is minimized**. When this agent was piloted in a small site, cooling savings of 18% (excluding IT load) and heating savings of 10% (excluding IT load) were realized, for a combined estimated annual electricity savings of 11.5%.  Therefore, potentially this agent can be implemented to reduce electricity costs as well as harmful greenhouse gas emissions that contribute to climate change.
@@ -100,6 +102,10 @@ For each **episode**:
 
 The above algorithm is computed in the **dp_long** method of the **agent** module.
 
+---
+
+[English](#model-based-reinforcement-learning-for-energy-efficient-data-centre-hvac-control) | Français
+
 # Apprentissage par renforcement basé sur un modèle pour un contrôle CVC écoénergétique dans les centres de données
 
 Ce répertoire présente une solution de référence faisant appel à l’apprentissage par renforcement basé sur un modèle (MBRL) pour entraîner un agent à contrôler le système CVC dans un centre de données de petite taille de façon à minimiser l’utilisation de l’énergie. Lorsque cet agent a été testé sur un petit site, des économies de refroidissement de 18 % (hors charge informatique) et de chauffage de 10 % (hors charge informatique) ont été réalisées, pour une économie annuelle combinée d’électricité estimée à 11,5 %. Par conséquent, cet agent peut potentiellement être mis en œuvre pour réduire les coûts d’électricité ainsi que les émissions de gaz à effet de serre nocifs qui contribuent aux changements climatiques.
@@ -107,7 +113,7 @@ Ce répertoire présente une solution de référence faisant appel à l’appren
 # Organisation du répertoire
 Tous les fichiers de la solution sont situés dans le dossier src et organisés de la façon suivante :
 
-* `agent.py` : Agent d’apprentissage par renforcement utilisant l’algorithme HNP (Hyperspace Neighbor Penetration).
+* `agent.py` : Agent d’apprentissage par renforcement utilisant l’algorithme HNP (Hyperspace Neighbour Penetration).
 * `environment.py` : Environnement OpenAI Gym simulant une pièce avec des contrôles CVC. Il est paramétré par un fichier `configs/environment_params.cfg` qui doit être rempli selon les instructions ci-dessous, sous **Paramètres de transition d’état**.
 * `util.py` : Fonctions utilitaires à l’appui de l’entraînement.
 * `main.py` : Boucle d’entraînement principale pour l’agent d’apprentissage par renforcement.
