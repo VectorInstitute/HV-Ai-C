@@ -99,3 +99,4 @@ For each **episode**:
 &emsp;**v**=max(**q**,-1)
 
 The above algorithm is computed in the **dp_long** method of the **agent** module.
+
