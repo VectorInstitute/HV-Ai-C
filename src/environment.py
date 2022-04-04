@@ -1,6 +1,7 @@
 """
 This file contains the Environment class.
 """
+from typing import Tuple
 import logging
 
 import gym
@@ -342,7 +343,7 @@ class Environment(gym.Env):
         )
         self.action_space = gym.spaces.Discrete(self.action_size)
 
-    def calculate_next_state(self, temp: float, action: int) -> tuple[float, int]:
+    def calculate_next_state(self, temp: float, action: int) -> Tuple[float, int]:
         """
         Find the next state based on current temperature and action
 
@@ -455,7 +456,7 @@ class Environment(gym.Env):
 
     def calculate_next_state_and_reward(
         self, action: int, temp: float = None, hvac: int = None
-    ) -> tuple[tuple[float, int], float]:
+    ) -> Tuple[Tuple[float, int], float]:
         """
         Sequence of methods for state transiiton
 

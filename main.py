@@ -33,13 +33,15 @@ def main(training_config_name: str = "training_params.cfg") -> None:
     for temp_outdoor_nominal in np.arange(
         outdoor_temp_lo, outdoor_temp_hi, outdoor_temp_step
     ):
-        print(
-            f"Training model for outdoor temperature between "
-            f"{temp_outdoor_nominal} and {temp_outdoor_nominal + 5}"
+        logger.info(
+            "Training model for outdoor temperature between %f and %f",
+            temp_outdoor_nominal,
+            temp_outdoor_nominal + 5,
         )
         logger.info(
-            f"temp_outdoor_nominal = {temp_outdoor_nominal}; start dp_long at "
-            f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            "temp_outdoor_nominal = %f; start dp_long at %s",
+            temp_outdoor_nominal,
+            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         )
         env = Environment(
             temp_min=float(parser["training_env"]["temp_min"]),
@@ -57,8 +59,9 @@ def main(training_config_name: str = "training_params.cfg") -> None:
         )
         agent.train()
         logger.info(
-            f"temp_outdoor_nominal = {temp_outdoor_nominal}; finish dp_long at "
-            f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            "temp_outdoor_nominal = %f; finish dp_long at %s",
+            temp_outdoor_nominal,
+            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         )
 
 
