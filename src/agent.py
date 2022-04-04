@@ -249,7 +249,8 @@ class Agent:
 
             if self.arr_max_delta_q_long[i_iteration] < self.theta:
                 self.logger.info(
-                    f"****** Long training converged at iteration {i_iteration} ********"
+                    "****** Long training converged at iteration %d ********",
+                    i_iteration,
                 )
                 flag_converge = True
                 self.arr_delta_q_long = self.arr_delta_q_long[:i_iteration].copy()
@@ -261,12 +262,12 @@ class Agent:
         self.len_arr_max_delta_q_long = i_iteration + 1
         if not flag_converge:
             self.logger.warning(
-                f"*****************************************************************\n"
-                f"*****************************************************************\n"
-                f"********* Long training unconverged !!! max_delta="
-                f"{self.arr_max_delta_q_long[i_iteration]} **********\n"
-                f"*****************************************************************\n"
-                f"*****************************************************************\n"
+                "*****************************************************************\n"
+                "*****************************************************************\n"
+                "********* Long training unconverged !!! max_delta = %f\n"
+                "*****************************************************************\n"
+                "*****************************************************************\n",
+                self.arr_max_delta_q_long[i_iteration],
             )
         self.model_calculation_time = datetime.datetime.now().strftime(
             "%Y-%m-%d %H:%M:%S"
