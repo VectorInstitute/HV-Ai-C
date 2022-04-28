@@ -6,3 +6,6 @@ src/__pycache__/
 
 # Output files
 models/
+
+# MacOS files
+.DS_Store
