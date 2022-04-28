@@ -1,8 +1,8 @@
 """
 This file contains the Environment class.
 """
-from typing import Tuple
 import logging
+from typing import Optional, TypeVar
 
 import gym
 import pandas as pd
@@ -65,6 +65,26 @@ class Environment(gym.Env):
         self.hvac = None
         self.real_time = None
         self.temp_outdoor = None
+
+    def step(self, action: TypeVar("ActType")) -> None:
+        """
+        Abstract method in Env class, not implemented
+        """
+
+    def reset(self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
+    ) -> None:
+        """
+        Abstract method in Env class, not implemented
+        """
+
+    def render(self, mode="human") -> None:
+        """
+        Abstract method in Env class, not implemented
+        """
 
     def read_reward_params(self) -> None:
         """
@@ -343,7 +363,7 @@ class Environment(gym.Env):
         )
         self.action_space = gym.spaces.Discrete(self.action_size)
 
-    def calculate_next_state(self, temp: float, action: int) -> Tuple[float, int]:
+    def calculate_next_state(self, temp: float, action: int) -> tuple[float, int]:
         """
         Find the next state based on current temperature and action
 
@@ -456,7 +476,7 @@ class Environment(gym.Env):
 
     def calculate_next_state_and_reward(
         self, action: int, temp: float = None, hvac: int = None
-    ) -> Tuple[Tuple[float, int], float]:
+    ) -> tuple[tuple[float, int], float]:
         """
         Sequence of methods for state transiiton
 

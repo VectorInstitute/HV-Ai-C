@@ -15,7 +15,7 @@ All solution files are located in the `src` directory, which are organized as fo
 
 # Dependencies
 
-* Python ≥ 3.6
+* Python ≥ 3.9
 * [OpenAI Gym](https://github.com/openai/gym)
 * [NumPy](https://github.com/numpy/numpy)
 * [Pandas](https://github.com/pandas-dev/pandas)
@@ -119,7 +119,7 @@ Tous les fichiers de la solution sont situés dans le dossier src et organisés 
 * `main.py` : Boucle d’entraînement principale pour l’agent d’apprentissage par renforcement.
 
 # Dépendances
-* Python version 3.6 ou supérieure
+* Python version 3.9 ou supérieure
 * [OpenAI Gym](https://github.com/openai/gym)
 * [NumPy](https://github.com/numpy/numpy)
 * [Pandas](https://github.com/pandas-dev/pandas)
