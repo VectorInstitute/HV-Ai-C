@@ -55,7 +55,7 @@ class Agent:
         learning_rate: float = 0.1,
         learning_rate_annealing: float = 0.9,
         temp_step: float = 1.0,
-        gamma: float = 0.95,
+        gamma: float = 0.99,
         theta: float = 1e-6,
         n_iteration_long: int = 1000,
     ) -> None:
@@ -84,9 +84,17 @@ class Agent:
         self.act_space_shape = self.get_act_shape()
 
         self.qtb = self.make_qtb()
+        
         self.vtb = self.make_vtb()
+        self.state_visitation = np.zeros(self.vtb.shape)
         self.rewards = []
-    
+        self.average_rewards = []
+
+        n_dim = len(self.obs_space_shape)
+        print("n dim", n_dim)
+        portion_index_matrix = np.vstack((np.zeros(n_dim), np.ones(n_dim))).T
+        self.all_portion_index_combos = np.array(np.meshgrid(*portion_index_matrix), dtype=int).T.reshape(-1, n_dim)
+
     def make_qtb(self):
         return np.zeros((*self.obs_space_shape, self.act_space_shape))
         
@@ -103,28 +111,48 @@ class Agent:
         return [np.arange(space.high[i], space.low[i] - steps[i], -steps[i]) for i, high in enumerate(space.high)]
 
     def obs_to_index_float(self, obs):
-        return (self.env.observation_space.high - obs)/(self.env.observation_space.high - self.env.observation_space.low) * (np.array(self.qtb.shape[:-1]) - 1)
+        return (obs - self.env.observation_space.low)/(self.env.observation_space.high - self.env.observation_space.low) * (np.array(self.qtb.shape[:-1]) - 1)
     
     def choose_action(self, obs_index, mode="explore"):
         if mode == "explore":
             if np.random.rand(1) < self.eps:
                 return self.env.action_space.sample()
-            
-            s = slice(-1)
-            idx = (tuple(obs_index) + (s,))
-            return np.argmax(self.qtb[idx], axis=-1)
-
+            return np.argmax(self.qtb[tuple(obs_index)])
+        
         if mode == "greedy": # For evaluation purposes
-            return np.argmax(self.qtb[idx], axis=-1)
+            return np.argmax(self.qtb[tuple(obs_index)])
 
+    def get_next_value(self, obs):
+        n_dim = len(obs)
 
-    def learn(self, n_episodes) -> None:
+        # Calculate HNP Q Target
+        next_obs_index_floats = self.obs_to_index_float(obs)
+        next_obs_index_int_below = np.floor(next_obs_index_floats).astype(np.int32)
+        next_obs_index_int_above = next_obs_index_int_below + 1
+        next_obs_index = np.round(next_obs_index_floats).astype(int)
+
+        vtb_index_matrix = np.vstack((next_obs_index_int_below, next_obs_index_int_above)).T
+        all_vtb_index_combos = np.array(np.meshgrid(*vtb_index_matrix)).T.reshape(-1, len(obs))
+
+        portion_below = next_obs_index_int_above - next_obs_index_floats
+        portion_above = 1 - portion_below
+        portion_matrix = np.vstack((portion_below, portion_above)).T
+
+        next_value = 0
+        for i, combo in enumerate(self.all_portion_index_combos):
+            portions = portion_matrix[np.arange(n_dim), combo]
+            value_from_vtb = self.vtb[tuple(all_vtb_index_combos[i])]
+            next_value += np.prod(portions) * value_from_vtb
+
+        return next_value, next_obs_index
+    
+    def learn(self, n_episodes, horizon) -> None:
         prev_obs = self.env.reset()
-        next_obs_index = np.zeros(prev_obs.shape)
+        next_obs_index = np.zeros(prev_obs.shape, dtype=int)
         episode_reward = 0
         ep_n = 0
-
-        while ep_n <= n_episodes:            
+        n_steps = 0
+        while ep_n <= n_episodes: 
             # Set value table to value of max action at that state
             self.vtb = np.nanmax(self.qtb, -1)
             
@@ -132,44 +160,54 @@ class Agent:
             obs, rew, done, info = self.env.step(ac)
             episode_reward += rew
 
-            # Calculate HNP Q Target
-            next_obs_index_floats = self.obs_to_index_float(obs)
-            next_obs_index_int_below = np.ceil(next_obs_index_floats).astype(np.int32) - 1
-            next_obs_index_int_above = next_obs_index_int_below + 1
-            next_obs_index = np.round(next_obs_index_floats).astype(int)
-
-            portion_below = next_obs_index_int_above - next_obs_index_floats
-            portion_above = 1 - portion_below
-
-            next_value_below = self.vtb[tuple(next_obs_index_int_below)]
-            next_value_above = self.vtb[tuple(next_obs_index_int_above)]
-
-            next_value = (
-                next_value_below * portion_below + next_value_above * portion_above
-            )
-
+            next_value, next_obs_index = self.get_next_value(obs)
             # Do Q learning update
             prev_qtb_index = np.round(self.obs_to_index_float(obs)).astype(np.int32)
             prev_qtb_index = tuple([*prev_qtb_index, ac])
+            self.state_visitation[prev_qtb_index[:-1]] += 1
 
             curr_q = self.qtb[prev_qtb_index]
             q_target = rew + self.gamma * np.sum(next_value)
             self.qtb[prev_qtb_index] = curr_q + self.learning_rate * (q_target - curr_q)
             prev_obs = obs
+            n_steps += 1
             if done: # New episode
-                print(f"Episode {ep_n} --- Reward: {episode_reward}")
+                print(f"num_timesteps: {n_steps}")
+                print(f"Episode {ep_n} --- Reward: {episode_reward}, Average reward per timestep: {episode_reward/n_steps}")
+                avg_reward = episode_reward/n_steps
+                self.rewards.append(episode_reward)
+                self.average_rewards.append(avg_reward)
+
+                n_steps = 0
                 ep_n += 1
                 self.eps = self.eps * self.eps_annealing
                 self.learning_rate = self.learning_rate * self.learning_rate_annealing
-                self.rewards.append(episode_reward)
                 episode_reward = 0
                 prev_obs = self.env.reset()
     
-    def save_results(self, fname):
+    def save_results(self):
+        today = date.today()
+        day = today.strftime("%Y_%b_%d")
+        now = dt.now()
+        time = now.strftime("%H_%M_%S")
+        dir_name = f"/root/beobench_results/{day}/results_{time}"
+        os.makedirs(dir_name)
+
+        original_stdout = sys.stdout # Save a reference to the original standard output
+
+        with open(f"{dir_name}/params.json", 'w') as f:
+            sys.stdout = f # Change the standard output to the file we created.
+            print(json.dumps(config, indent=4))
+            sys.stdout = original_stdout
         print("Saving results...")
-        np.savez(f"/root/beobench_results/{fname}", qtb=self.qtb, rewards=self.rewards)
 
-
+        np.savez(
+            f"{dir_name}/metrics.npz", 
+            qtb=self.qtb, 
+            rewards=self.rewards,
+            average_rewards=self.average_rewards,
+            state_visitation=self.state_visitation
+            )
 
 from beobench.experiment.provider import create_env, config
 import numpy as np
