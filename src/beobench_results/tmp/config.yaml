@@ -1,0 +1,53 @@
+agent:
+  config:
+    config:
+      batch_mode: complete_episodes
+      framework: torch
+      gamma: 0.999
+      horizon: 1000
+      lr: 0.005
+      metrics_smoothing_episodes: 5
+      model:
+        fcnet_activation: relu
+        fcnet_hiddens:
+        - 256
+        - 256
+        - 256
+        - 256
+        post_fcnet_activation: tanh
+      num_workers: 1
+      soft_horizon: true
+    num_episodes: 200
+    run_or_experiment: PPO
+    stop:
+      timesteps_total: 400000
+  origin: ./agent_mbrl.py
+autogen:
+  random_seed: 2405906
+  run_id: 213263f4c9034787b21110e8395ac4ef
+env:
+  config:
+    name: Eplus-5Zone-mixed-discrete-v1
+    normalize: true
+  gym: sinergym
+  name: MixedUseFanFCU-v0
+general:
+  beobench_extras: extended
+  dev_path: null
+  docker_flags: null
+  docker_shm_size: 4gb
+  force_build: false
+  local_dir: ./beobench_results
+  mlflow_name: null
+  num_samples: 1
+  use_gpu: false
+  use_no_cache: false
+  version: 0.5.1
+  wandb_entity: null
+  wandb_group: null
+  wandb_project: null
+hyperparams:
+  eps_annealing: 0.999
+  horizon: 10000
+  lr_annealing: 0.999
+wrappers: []
