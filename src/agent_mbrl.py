@@ -23,7 +23,6 @@ class ObservationWrapper(gym.ObservationWrapper):
                 )
     
     def observation(self, obs):
-        print("obs in wrapper", obs)
         if np.max(obs) > 1:
             print("more than 0")
         if np.min(obs) < 0:
