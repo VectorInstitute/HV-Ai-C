@@ -4,7 +4,6 @@ from gym import spaces
 from gym.spaces import Box, Discrete, Tuple, Dict
 import time
 import os
-print("listing dir", os.listdir())
 CONSTANT_NINF = -9e99
 
 class ObservationWrapper(gym.ObservationWrapper):
@@ -23,23 +22,15 @@ class ObservationWrapper(gym.ObservationWrapper):
                 dtype=self.env.observation_space.dtype
                 )
     
-    # def observation(self, obs):
-    #     print("obs in wrapper", obs)
-    #     if np.max(obs) > 1:
-    #         print("more than 0")
-    #     if np.min(obs) < 0:
-    #         print("less 0 ")
-    #     # modify obs
-    #     return np.clip(obs[self.obs_to_keep], self.lows, self.highs)
     def observation(self, obs):
-        # FAKE OBSERVATION WRAPPER FOR DISCRETE
-        obs = obs[self.obs_to_keep]
-        print("obs before processing", obs)
+        print("obs in wrapper", obs)
+        if np.max(obs) > 1:
+            print("more than 0")
+        if np.min(obs) < 0:
+            print("less 0 ")
+        # modify obs
+        return np.clip(obs[self.obs_to_keep], self.lows, self.highs)
 
-        for i, idx in enumerate(self.mask):
-            if idx == 2:
-                obs[i] = np.floor(obs[i])
-        return obs
 
 
 from beobench.experiment.provider import create_env, config
@@ -97,31 +88,22 @@ class Agent:
         self.high = high
 
         self.slow_continuous_idx = np.where(obs_mask==0)[0]
-        print(self.slow_continuous_idx)
         self.fast_continuous_idx = np.where(obs_mask==1)[0]
-        print(self.fast_continuous_idx)
         self.to_discretize_idx = np.hstack((self.slow_continuous_idx, self.fast_continuous_idx))# Slow first
 
         self.cont_low = self.low[self.to_discretize_idx]
         self.cont_high = self.high[self.to_discretize_idx]
         self.discrete_idx = np.where(obs_mask==2)[0]
         self.permutation_idx = np.hstack((self.slow_continuous_idx, self.fast_continuous_idx, self.discrete_idx))
-        print("permutation", self.permutation_idx)
         self.n_slow_cont = len(self.slow_continuous_idx)
         self.n_fast_discrete = len(self.fast_continuous_idx) + len(self.discrete_idx)
 
         self.obs_steps = np.ones(len(self.low)) /20 # TODO: CHANGE THIS
         self.discretization_ticks = self.get_ticks(self.env.observation_space, self.obs_steps) 
-        print(self.discretization_ticks)
 
         self.obs_space_shape = self.get_obs_shape()
         self.act_space_shape = self.get_act_shape()
-        print("Observation space shape:", self.obs_space_shape)
-        print("Action space shape:", self.act_space_shape)
-        print("Permutation indices", self.permutation_idx)
-        print("slow indices", self.slow_continuous_idx)
         self.qtb = self.make_qtb()
-        print("Q table shape:", self.qtb.shape)
         
         self.vtb = self.make_vtb()
         self.state_visitation = np.zeros(self.vtb.shape)
@@ -129,7 +111,6 @@ class Agent:
         self.average_rewards = []
 
         n_dim = len(self.obs_space_shape)
-        print(self.n_slow_cont)
         if self.n_slow_cont > 0:
             portion_index_matrix = np.vstack((np.zeros(self.n_slow_cont), np.ones(self.n_slow_cont))).T
             self.all_portion_index_combos = np.array(np.meshgrid(*portion_index_matrix), dtype=int).T.reshape(-1, self.n_slow_cont)
@@ -144,20 +125,15 @@ class Agent:
         return np.zeros(self.obs_space_shape)
 
     def get_obs_shape(self):
-        print(self.high[self.discrete_idx])
         return tuple(list([len(ticks) for ticks in self.discretization_ticks]) + list(self.high[self.discrete_idx]))
 
     def get_act_shape(self):
         return self.env.action_space.n
 
     def get_ticks(self, space, steps):
-        print("space", space)
-        print(self.to_discretize_idx)
-        print(space.high[self.to_discretize_idx])
         return [np.arange(space.low[i], space.high[i] + steps[i], steps[i]) for i in self.to_discretize_idx]
 
     def obs_to_index_float(self, obs):
-        print(obs, self.cont_low, self.cont_high, (np.array(self.vtb.shape[:len(self.cont_high)]) - 1))
         return (obs - self.cont_low)/(self.cont_high - self.cont_low) * (np.array(self.vtb.shape[:len(self.cont_high)]) - 1)
     
     def choose_action(self, obs_index, mode="explore"):
@@ -175,8 +151,6 @@ class Agent:
 
         cont_obs_index_floats = self.obs_to_index_float(cont_obs)
         cont_obs_index = np.round(cont_obs_index_floats)
-        print("cont obs index", cont_obs_index)
-        print("disc obs",  obs[len(self.to_discretize_idx):])
         obs_index = np.hstack((cont_obs_index, obs[len(self.to_discretize_idx):])).astype(int)
 
         return obs_index, cont_obs_index_floats
@@ -188,7 +162,6 @@ class Agent:
         if self.n_slow_cont == 0: # No HNP calculation needed
             return self.vtb[tuple(full_obs_index)], full_obs_index
         slow_cont_obs_index_floats = cont_obs_index_floats[:len(self.slow_continuous_idx)]
-        print("slow contobs inddex floats", slow_cont_obs_index_floats)
         slow_cont_obs_index_int_below = np.floor(slow_cont_obs_index_floats).astype(np.int32)
         slow_cont_obs_index_int_above = slow_cont_obs_index_int_below + 1
 
@@ -203,22 +176,11 @@ class Agent:
         portion_matrix = np.vstack((portion_below, portion_above)).T
 
         non_hnp_index = full_obs_index[len(self.slow_continuous_idx):]
-        print("full obs index", full_obs_index)
-        print(len(self.slow_continuous_idx))
         next_value = 0
         for i, combo in enumerate(self.all_portion_index_combos):
-            print("all portion index combos", self.all_portion_index_combos)
-            print("combo", combo)
-            print("portion matrix", portion_matrix)
-            print("len", len(slow_cont_obs_index_floats))
             portions = portion_matrix[np.arange(len(slow_cont_obs_index_floats)), combo]
-            print("portions", portions)
-            print("hstack", np.hstack((all_vtb_index_combos[i], non_hnp_index)))
-            print("vtb shape", self.vtb.shape)
             value_from_vtb = self.vtb[tuple(np.hstack((all_vtb_index_combos[i], non_hnp_index)).astype(int))]
-            print("val from vtb", value_from_vtb.shape)
             next_value += np.prod(portions) * value_from_vtb
-        print("next value", next_value)
         
         return next_value, full_obs_index
     
@@ -300,7 +262,6 @@ mask = np.array([2,0,1])
 env = create_env()
 
 env = ObservationWrapper(env, obs_to_keep, lows, highs, mask)
-# TODO: CHGANGE OBSERVATION WRAPPER BACK
 
 agent = Agent(
     env, 
@@ -309,7 +270,6 @@ agent = Agent(
     highs,
     eps_annealing=config["hyperparams"]["eps_annealing"], 
     learning_rate_annealing=config["hyperparams"]["lr_annealing"])
-print(agent.qtb.shape)
 
 exit()
 agent.learn(config["agent"]["config"]["num_episodes"], config["hyperparams"]["horizon"])
