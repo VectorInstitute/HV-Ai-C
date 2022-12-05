@@ -6,7 +6,7 @@ agent:
       gamma: 0.999
       horizon: 1000
       lr: 0.005
-      metrics_smoothing_episodes: 5
+      metrics_num_episodes_for_smoothing: 5
       model:
         fcnet_activation: relu
         fcnet_hiddens:
@@ -17,20 +17,19 @@ agent:
         post_fcnet_activation: tanh
       num_workers: 1
       soft_horizon: true
-    num_episodes: 200
+    num_episodes: 50
     run_or_experiment: PPO
     stop:
       timesteps_total: 400000
-  origin: ./agent_mbrl.py
+  origin: ./train_hnp.py
 autogen:
-  random_seed: 2405906
-  run_id: 213263f4c9034787b21110e8395ac4ef
+  random_seed: 7625077
+  run_id: a643f318e0b044c092a3bf4f7765afad
 env:
   config:
-    name: Eplus-5Zone-mixed-discrete-v1
+    name: Eplus-5Zone-hot-discrete-v1
     normalize: true
-  gym: sinergym
-  name: MixedUseFanFCU-v0
+  gym: ./dev_env
 general:
   beobench_extras: extended
   dev_path: null
@@ -42,7 +41,6 @@ general:
   num_samples: 1
   use_gpu: false
   use_no_cache: false
-  version: 0.5.1
   wandb_entity: null
   wandb_group: null
   wandb_project: null

@@ -1,6 +1,6 @@
 agent:
   # script to run inside experiment container
-  origin: ./agent_mbrl.py
+  origin: ./train_hnp.py
   # configuration that can be accessed by script above
   config:
     num_episodes: 50
@@ -17,3 +17,8 @@ wrappers: [] # no wrappers added for this example
 general:
   # save experiment data to ``./beobench_results`` directory
   local_dir: ./beobench_results
+
+hyperparams:
+  eps_annealing: 0.999
+  lr_annealing: 0.999
+  horizon: 10000
