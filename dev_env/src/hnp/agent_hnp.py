@@ -146,7 +146,7 @@ class HNPAgent:
             return self.vtb[tuple(full_obs_index)], full_obs_index
         slow_cont_obs_index_floats = cont_obs_index_floats[:len(self.slow_continuous_idx)]
         slow_cont_obs_index_int_below = np.floor(slow_cont_obs_index_floats).astype(np.int32)
-        slow_cont_obs_index_int_above = slow_cont_obs_index_int_below + 1
+        slow_cont_obs_index_int_above = np.ceil(slow_cont_obs_index_floats).astype(np.int32)
 
         if len(self.to_discretize_idx) < len(obs):
             discrete_obs = obs[len(self.to_discretize_idx) + 1:]
