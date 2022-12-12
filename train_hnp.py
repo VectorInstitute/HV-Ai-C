@@ -1,5 +1,6 @@
 from beobench.experiment.provider import create_env, config
-from hnp.agent_hnp import HNPAgent
+
+from hnp.agent_hnp import HNPAgent, ObservationWrapper
 import numpy as np
 import os
 import time
@@ -17,7 +18,7 @@ env = create_env()
 
 env = ObservationWrapper(env, obs_to_keep, lows, highs, mask)
 
-agent = Agent(
+agent = HNPAgent(
     env, 
     mask,
     lows,
@@ -25,7 +26,6 @@ agent = Agent(
     eps_annealing=config["hyperparams"]["eps_annealing"], 
     learning_rate_annealing=config["hyperparams"]["lr_annealing"])
 
-exit()
 agent.learn(config["agent"]["config"]["num_episodes"], config["hyperparams"]["horizon"])
 agent.save_results()
 env.close()

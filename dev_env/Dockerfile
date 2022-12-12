@@ -99,9 +99,11 @@ WORKDIR /sinergym
 #COPY examples /sinergym/examples
 #COPY check_run_times.py .
 #COPY try_env.py .
-# COPY ../src ./src
-# RUN export GO_BACK=$(pwd) && cd ./src && pip install -e . && cd $GO_BACK
+COPY ./src /hnp_src
+WORKDIR /hnp_src
+RUN pip install . 
 
+WORKDIR /sinergym
 RUN pip install -e .${SINERGYM_EXTRAS}
 
 
