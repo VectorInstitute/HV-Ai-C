@@ -23,8 +23,8 @@ agent:
       timesteps_total: 400000
   origin: ./train_hnp.py
 autogen:
-  random_seed: 4703914
-  run_id: d9ddd801cf104461bdaa9182ec4f43fe
+  random_seed: 9891598
+  run_id: f5ef63f4fdb14433aa7946a07f9d8c2c
 env:
   config:
     name: Eplus-5Zone-hot-discrete-v1
