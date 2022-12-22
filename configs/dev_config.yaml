@@ -4,6 +4,9 @@ agent:
   # configuration that can be accessed by script above
   config:
     num_episodes: 50
+    eps_annealing: 0.999
+    lr_annealing: 0.999
+    horizon: 10000
 env:
   # gym framework from which we want use an environment
   gym: ./dev_env
@@ -17,8 +20,3 @@ wrappers: [] # no wrappers added for this example
 general:
   # save experiment data to ``./beobench_results`` directory
   local_dir: ./beobench_results
-
-hyperparams:
-  eps_annealing: 0.999
-  lr_annealing: 0.999
-  horizon: 10000
