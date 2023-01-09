@@ -1,0 +1,16 @@
+agent:
+  # Hyperparameters
+  params:
+    num_episodes: 100
+    horizon: 24
+    gamma: 0.99
+    initial_epsilon: 1
+    epsilon_annealing: 0.999
+    learning_rate: 0.1
+    learning_rate_annealing: 0.999
+    
+env:
+  # sinergym environment name
+  name: Eplus-5Zone-hot-discrete-v1
+  # whether to normalise observations
+  normalize: True

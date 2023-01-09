@@ -22,7 +22,7 @@ class Agent(ABC):
     def train(self) -> None:
         pass
 
-    def save_results(self) -> None:
+    def save_results(self) -> str:
         today = date.today()
         day = today.strftime("%Y_%b_%d")
         now = datetime.now()
@@ -33,6 +33,8 @@ class Agent(ABC):
         logging.info("Saving results...")
 
         np.save(f"{dir_name}/rewards.npy", self.rewards)
+
+        # return dir_name
 
 
 class RandomActionAgent(Agent):
@@ -247,3 +249,15 @@ class QLearningAgent(Agent):
                 self.learning_rate = self.learning_rate * self.learning_rate_annealing
             if done:
                 obs = self.env.reset()
+
+    def save_results(self) -> None:
+        today = date.today()
+        day = today.strftime("%Y_%b_%d")
+        now = datetime.now()
+        time = now.strftime("%H_%M_%S")
+        dir_name = f"{os.getcwd()}/beobench_results/{day}/results_{time}"
+        os.makedirs(dir_name)
+
+        logging.info("Saving results...")
+
+        np.save(f"{dir_name}/rewards.npy", self.rewards)

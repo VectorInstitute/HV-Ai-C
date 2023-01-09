@@ -88,7 +88,17 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y git
 # replaced with repo clone step
 RUN git clone https://github.com/ugr-sail/sinergym.git --branch=v2.1.2
 
-WORKDIR /sinergym
+WORKDIR /root
+RUN mkdir mbrl 
+COPY . ./mbrl
+# WORKDIR /mbrl
+# RUN mkdir hnp
+# RUN mkdir hnp.egg-info
+# COPY ./hnp /root/mbrl/hnp
+# COPY ./hnp.egg-info /root/mbrl/hnp.egg-info
+# COPY ./pyproject.toml /root/mbrl/
+# COPY ./setup.py /root/mbrl/
+# WORKDIR /MBRL-HVAC-Energy-Optimization
 #COPY requirements.txt .
 #COPY MANIFEST.in .
 #COPY setup.py .
@@ -99,9 +109,8 @@ WORKDIR /sinergym
 #COPY examples /sinergym/examples
 #COPY check_run_times.py .
 #COPY try_env.py .
-COPY ./src /hnp_src
-WORKDIR /hnp_src
-RUN pip install . 
+# COPY . /hnp_src
+RUN pip install ./mbrl
 
 WORKDIR /sinergym
 RUN pip install -e .${SINERGYM_EXTRAS}

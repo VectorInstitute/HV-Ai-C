@@ -1,15 +1,18 @@
 agent:
   # script to run inside experiment container
-  origin: ./train_hnp.py
+  origin: ./train_beobench.py
   # configuration that can be accessed by script above
   config:
-    num_episodes: 50
-    eps_annealing: 0.999
-    lr_annealing: 0.999
-    horizon: 10000
+    num_episodes: 1460
+    horizon: 24
+    gamma: 0.99
+    initial_epsilon: 1
+    epsilon_annealing: 0.999
+    learning_rate: 0.1
+    learning_rate_annealing: 0.999
 env:
   # gym framework from which we want use an environment
-  gym: ./dev_env
+  gym: ./beobench_env
   # gym-specific environment configuration
   config:
     # sinergym environment name
