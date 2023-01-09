@@ -27,3 +27,6 @@ models/
 
 # MacOS files
 .DS_Store
+
+# Energy plus files
+Eplus-*

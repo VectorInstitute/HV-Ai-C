@@ -13,6 +13,19 @@ from sinergym.utils.constants import (
 
 class ObservationWrapper(gym.ObservationWrapper):
     def __init__(self, env, obs_to_keep, lows, highs, mask):
+        """
+        Constructor for observation wrapper
+
+        Args:
+            env: Sinergym environment
+            obs_to_keep: Indices of state variables that are used
+            lows: Lower bound of the state variables
+            highs: Upper bound of the state variables
+            mask: Mask to categorize variables into slowly-changing cont, fast-changing cont, and discrete vars
+
+        Returns:
+            None
+        """
         super().__init__(env)
         self.env = env
         self.obs_to_keep = obs_to_keep
@@ -27,11 +40,15 @@ class ObservationWrapper(gym.ObservationWrapper):
         )
 
     def observation(self, obs):
-        if np.max(obs) > 1:
-            print("more than 0")
-        if np.min(obs) < 0:
-            print("less 0 ")
-        # modify obs
+        """
+        Remove the unused state variables from observation
+
+        Args:
+            obs:
+
+        Returns:
+            Clipped observation
+        """
         return np.clip(obs[self.obs_to_keep], self.lows, self.highs)
 
 

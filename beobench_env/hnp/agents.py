@@ -10,19 +10,47 @@ from hnp.hnp import HNP
 
 class Agent(ABC):
     """
-    Reinforcement Learning Agent Class for learning the policy and the model
+    Parent Reinforcement Learning Agent Class 
     """
 
     def __init__(self, env, config) -> None:
+        """
+        Constructor for RL agent
+
+        Args:
+            env: Gym environment
+            config: Agent configuration
+
+        Returns:
+            None
+        """
         self.env = env
         self.config = config
         self.rewards = []
 
     @abstractmethod
     def train(self) -> None:
+        """
+        RL agent training
+
+        Args:
+            None
+        
+        Returns:
+            None
+        """
         pass
 
-    def save_results(self) -> str:
+    def save_results(self) -> None:
+        """
+        Saves training result
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         today = date.today()
         day = today.strftime("%Y_%b_%d")
         now = datetime.now()
@@ -34,8 +62,6 @@ class Agent(ABC):
 
         np.save(f"{dir_name}/rewards.npy", self.rewards)
 
-        # return dir_name
-
 
 class RandomActionAgent(Agent):
     """
@@ -43,9 +69,28 @@ class RandomActionAgent(Agent):
     """
 
     def __init__(self, env, config) -> None:
+        """
+        Constructor for Random Action agent
+
+        Args:
+            env: Gym environment
+            config: Agent configuration
+
+        Returns:
+            None
+        """
         super().__init__(env, config)
 
     def train(self) -> None:
+        """
+        Random Action agent training
+
+        Args:
+            None
+        
+        Returns:
+            None
+        """
         self.env.reset()
         episode_reward = 0
         ep_n = 0
@@ -76,9 +121,29 @@ class FixedActionAgent(Agent):
     """
 
     def __init__(self, env, config) -> None:
+        """
+        Constructor for Fixed Action agent
+
+        Args:
+            env: Gym environment
+            config: Agent configuration
+
+        Returns:
+            None
+        """
+
         super().__init__(env, config)
 
     def train(self) -> None:
+        """
+        Fixed Action agent training
+
+        Args:
+            None
+        
+        Returns:
+            None
+        """
         self.env.reset()
         episode_reward = 0
         ep_n = 0
@@ -104,12 +169,25 @@ class FixedActionAgent(Agent):
 
 class QLearningAgent(Agent):
     """
-    Q Learning Agent Class
+    Q-Learning Agent Class
     """
 
     def __init__(self, env, config, obs_mask, low, high, use_hnp=True) -> None:
-        """ """
-        # 3 types --> slow continuous, fast continuous, discrete observations
+        """
+        Constructor for Q-Learning agent
+
+        Args:
+            env: Gym environment
+            config: Agent configuration
+            obs_mask: Mask to categorize variables into slowly-changing cont, fast-changing cont, and discrete vars
+            low: Lower bound of the state variables
+            high: Upper bound of the state variables
+            use_hnp: Whether to use HNP
+
+        Returns:
+            None
+        """
+        # 3 types --> slowly-changing cont, fast-changing cont, discrete observations
         # actions --> always discrete
         # ASSUMES DISCRETE ACTION SPACE
         super().__init__(env, config)
@@ -119,6 +197,7 @@ class QLearningAgent(Agent):
         self.epsilon_annealing = config["epsilon_annealing"]
         self.learning_rate = config["learning_rate"]
         self.learning_rate_annealing = config["learning_rate_annealing"]
+        self.step_size = config["step_size"]
         self.low = low
         self.high = high
         self.use_hnp = use_hnp
@@ -144,13 +223,22 @@ class QLearningAgent(Agent):
             self.hnp = HNP(np.where(obs_mask == 0)[0])
 
     def get_obs_shape(self):
+        """
+        Get the observation space shape
+
+        Args:
+            None
+
+        Returns:
+            
+        """
         # TODO: SIMPLIFY THIS
         steps = np.ones(len(self.low)) / 20
         discretization_ticks = [
             np.arange(
                 self.env.observation_space.low[i],
                 self.env.observation_space.high[i] + steps[i],
-                steps[i],
+                self.step,
             )
             for i in self.to_discretize_idx
         ]
@@ -161,15 +249,28 @@ class QLearningAgent(Agent):
         )
 
     def get_act_shape(self):
+        """
+        Get the action space shape
+
+        Args:
+            None
+
+        Returns:
+            Action space shape
+        """
         return self.env.action_space.n
 
     def get_ticks(self, space, steps):
+        """
+        """
         return [
             np.arange(space.low[i], space.high[i] + steps[i], steps[i])
             for i in self.to_discretize_idx
         ]
 
     def obs_to_index_float(self, obs):
+        """
+        """
         return (
             (obs - self.cont_low)
             / (self.cont_high - self.cont_low)
@@ -177,6 +278,8 @@ class QLearningAgent(Agent):
         )
 
     def choose_action(self, obs_index, mode="explore"):
+        """
+        """
         if mode == "explore":
             if np.random.rand(1) < self.epsilon:
                 return self.env.action_space.sample()
@@ -186,6 +289,8 @@ class QLearningAgent(Agent):
             return np.argmax(self.qtb[tuple(obs_index)])
 
     def get_vtb_idx_from_obs(self, obs):
+        """
+        """
         obs = obs[self.permutation_idx]
         cont_obs = obs[: len(self.to_discretize_idx)]
 
@@ -198,6 +303,8 @@ class QLearningAgent(Agent):
         return obs_index, cont_obs_index_floats
 
     def get_next_value(self, obs):
+        """
+        """
         # If change first 5 lines of this function also
         full_obs_index, cont_obs_index_floats = self.get_vtb_idx_from_obs(obs)
         next_value = self.vtb[tuple(full_obs_index)]
@@ -210,6 +317,16 @@ class QLearningAgent(Agent):
         return next_value, full_obs_index
 
     def train(self) -> None:
+        """
+        Q-Learning agent training
+
+        Args:
+            None
+        
+        Returns:
+            None
+        """
+
         # n people, outdoor temperature, indoor temperature
         obs = self.env.reset()
         prev_vtb_index, _ = self.get_vtb_idx_from_obs(obs)
@@ -249,15 +366,3 @@ class QLearningAgent(Agent):
                 self.learning_rate = self.learning_rate * self.learning_rate_annealing
             if done:
                 obs = self.env.reset()
-
-    def save_results(self) -> None:
-        today = date.today()
-        day = today.strftime("%Y_%b_%d")
-        now = datetime.now()
-        time = now.strftime("%H_%M_%S")
-        dir_name = f"{os.getcwd()}/beobench_results/{day}/results_{time}"
-        os.makedirs(dir_name)
-
-        logging.info("Saving results...")
-
-        np.save(f"{dir_name}/rewards.npy", self.rewards)

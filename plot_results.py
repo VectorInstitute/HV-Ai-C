@@ -20,6 +20,11 @@ def main(filenames: list[str]) -> None:
 def plot_npy(filename: str) -> None:
     agent_name = filename.split("_")[0]
     rewards = np.load(filename)
+    
+    f = plt.figure()
+    f.set_figwidth(16)
+    f.set_figheight(7)
+
     plt.plot(rewards)
     plt.xlabel("Episodes")
     plt.ylabel("Episodic Rewards")
@@ -36,6 +41,10 @@ def plot_diff(filenames: list[str]) -> None:
     rewards_1 = np.load(filenames[0])
     rewards_2 = np.load(filenames[1])
     rewards_diff = rewards_1 - rewards_2
+
+    f = plt.figure()
+    f.set_figwidth(16)
+    f.set_figheight(7)
 
     plt.plot(rewards_diff)
     plt.xlabel("Episodes")
