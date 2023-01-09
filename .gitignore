@@ -30,3 +30,6 @@ models/
 
 # Energy plus files
 Eplus-*
+
+# Output files
+*results

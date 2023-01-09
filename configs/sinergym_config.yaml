@@ -1,7 +1,7 @@
 agent:
   # Hyperparameters
   params:
-    num_episodes: 100
+    num_episodes: 1460
     horizon: 24
     gamma: 0.99
     step_size: 0.05

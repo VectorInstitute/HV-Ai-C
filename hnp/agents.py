@@ -243,7 +243,7 @@ class QLearningAgent(Agent):
             np.arange(
                 self.env.observation_space.low[i],
                 self.env.observation_space.high[i] + steps[i],
-                self.step,
+                steps[i],
             )
             for i in self.continuous_idx
         ]
