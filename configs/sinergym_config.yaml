@@ -1,10 +1,10 @@
 agent:
   # Hyperparameters
   params:
-    num_episodes: 1460
+    num_episodes: 140
     horizon: 24
     gamma: 0.99
-    step_size: 0.05
+    num_steps: 20
     initial_epsilon: 1
     epsilon_annealing: 0.999
     learning_rate: 0.1

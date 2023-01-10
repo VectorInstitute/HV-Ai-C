@@ -18,7 +18,7 @@ def main(config_path):
     mask = np.array([0, 0, 0])
 
     env = create_env(config["env"])
-    env = ObservationWrapper(env, obs_to_keep, lows, highs, mask)
+    env = ObservationWrapper(env, obs_to_keep)
 
     agent = QLearningAgent(
         env, 

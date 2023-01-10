@@ -14,7 +14,7 @@ def main():
     mask = np.array([0, 0, 0])
 
     env = create_env(config["env"]["config"])
-    env = ObservationWrapper(env, obs_to_keep, lows, highs, mask)
+    env = ObservationWrapper(env, obs_to_keep)
 
     agent = QLearningAgent(
         env, 
@@ -22,6 +22,7 @@ def main():
         mask,
         lows,
         highs,
+        use_beobench=True
     )
     agent.train()
     agent.save_results()

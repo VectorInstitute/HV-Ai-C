@@ -1,6 +1,8 @@
-import numpy as np
+"""
+This file includes all environment related class and methods
+"""
+
 import gym
-from gym import spaces
 
 from sinergym.utils.wrappers import NormalizeObservation, MultiObsWrapper
 from sinergym.utils.constants import (
@@ -12,27 +14,35 @@ from sinergym.utils.constants import (
 
 
 class ObservationWrapper(gym.ObservationWrapper):
-    def __init__(self, env, obs_to_keep, lows, highs, mask):
+    """
+    Sinergym environment wrapper to modify observations
+    """
+    def __init__(self, env, obs_to_keep):
+        """
+        Constructor for observation wrapper
+
+        Args:
+            env: Sinergym environment
+            obs_to_keep: Indices of state variables that are used
+
+        Returns:
+            None
+        """
         super().__init__(env)
         self.env = env
         self.obs_to_keep = obs_to_keep
-        self.lows = lows
-        self.highs = highs
-        self.mask = mask
-        self.observation_space = spaces.Box(
-            low=lows,
-            high=highs,
-            shape=((len(obs_to_keep),)),
-            dtype=self.env.observation_space.dtype,
-        )
 
-    def observation(self, obs):
-        if np.max(obs) > 1:
-            print("more than 0")
-        if np.min(obs) < 0:
-            print("less 0 ")
-        # modify obs
-        return np.clip(obs[self.obs_to_keep], self.lows, self.highs)
+    def observation(self, observation):
+        """
+        Remove the unused state variables from observation
+
+        Args:
+            obs: Full observation
+
+        Returns:
+            Filtered observation
+        """
+        return observation[self.obs_to_keep]
 
 
 def create_env(env_config: dict = None) -> gym.Env:

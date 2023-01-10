@@ -1,14 +1,20 @@
+"""
+This file includes the class for HNP
+"""
+
 import numpy as np
 
-class HNP():
+
+class HNP:
     """
     Class for HNP computation
     """
+
     def __init__(self, slow_continuous_idx) -> None:
         """
         Constructor for HNP object
 
-        Args: 
+        Args:
             slow_continuous_idx: Indices for slowly-changing continuous vars
 
         Returns:
@@ -28,12 +34,12 @@ class HNP():
     def get_next_value(self, vtb, full_obs_index, cont_obs_index_floats):
         """
         Computes the new state value of tiles using HNP
-        
-        Args: 
+
+        Args:
             vtb: State value table
             full_obs_index: Value table index of observation
             cont_obs_index_floats: Continuous obseravation var indices
-        
+
         Returns:
             next_value: Next state value for continuous obseravation vars
         """
