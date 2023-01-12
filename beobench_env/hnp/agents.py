@@ -21,7 +21,7 @@ class Agent(ABC):
     Parent Reinforcement Learning Agent Class
     """
 
-    def __init__(self, env, config, use_beobench=False) -> None:
+    def __init__(self, env, config, results_dir="training_results", use_beobench=False) -> None:
         """
         Constructor for RL agent
 
@@ -34,6 +34,7 @@ class Agent(ABC):
         """
         self.env = env
         self.config = config
+        self.results_dir = results_dir
         self.rewards = []
         self.use_beobench = use_beobench
 
@@ -63,10 +64,8 @@ class Agent(ABC):
         day = today.strftime("%Y_%b_%d")
         now = datetime.now()
         time = now.strftime("%H_%M_%S")
-        if self.use_beobench:
-            dir_name = f"/root/beobench_results/{day}/results_{time}"
-        else:
-            dir_name = f"{os.getcwd()}/training_results/{day}/results_{time}"
+        base_dir = "root" if self.use_beobench else os.getcwd()
+        dir_name = f"/{base_dir}/{self.results_dir}/{day}/results_{time}"
         os.makedirs(dir_name)
 
         logging.info("Saving results...")
@@ -156,7 +155,7 @@ class QLearningAgent(Agent):
     Q-Learning Agent Class
     """
 
-    def __init__(self, env, config, obs_mask, low, high, use_beobench=False, use_hnp=True) -> None:
+    def __init__(self, env, config, obs_mask, low, high, results_dir="training_results", use_beobench=False, use_hnp=True) -> None:
         """
         Constructor for Q-Learning agent
 
@@ -175,7 +174,7 @@ class QLearningAgent(Agent):
         # 3 types --> slowly-changing cont, fast-changing cont, discrete observations
         # actions --> always discrete
         # ASSUMES DISCRETE ACTION SPACE
-        super().__init__(env, config)
+        super().__init__(env, config, results_dir, use_beobench)
 
         self.gamma = config["gamma"]
         self.epsilon = config["initial_epsilon"]

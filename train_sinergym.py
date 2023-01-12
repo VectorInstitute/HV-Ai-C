@@ -25,7 +25,7 @@ def main(config_path):
         config["agent"]["params"],
         mask,
         lows,
-        highs,
+        highs
     )
     agent.train()
     agent.save_results()

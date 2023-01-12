@@ -22,6 +22,7 @@ def main():
         mask,
         lows,
         highs,
+        results_dir=config["general"]["local_dir"],
         use_beobench=True
     )
     agent.train()

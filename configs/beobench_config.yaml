@@ -3,7 +3,7 @@ agent:
   origin: ./train_beobench.py
   # configuration that can be accessed by script above
   config:
-    num_episodes: 460
+    num_episodes: 1460
     horizon: 24
     gamma: 0.99
     num_steps: 20
