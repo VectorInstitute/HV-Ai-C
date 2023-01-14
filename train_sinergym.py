@@ -12,10 +12,8 @@ def main(config_path):
     with open(config_path, "r") as conf_yml:
         config = yaml.safe_load(conf_yml)
 
-    obs_to_keep = np.array([0, 1, 8]) 
-    lows = np.array([0, 0, 0])
-    highs = np.array([1, 1, 1])
-    mask = np.array([0, 0, 0])
+    obs_to_keep = np.array(config["env"]["obs_to_keep"])
+    mask = np.array(config["env"]["mask"])
 
     env = create_env(config["env"])
     env = ObservationWrapper(env, obs_to_keep)
@@ -24,8 +22,6 @@ def main(config_path):
         env, 
         config["agent"]["params"],
         mask,
-        lows,
-        highs
     )
     agent.train()
     agent.save_results()

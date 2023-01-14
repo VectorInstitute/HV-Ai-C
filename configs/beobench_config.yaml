@@ -20,6 +20,17 @@ env:
     name: Eplus-5Zone-hot-discrete-v1
     # whether to normalise observations
     normalize: True
+    # The observation variables to use for training
+    obs_to_keep: [0, 1, 8]
+    # The type of each observation variable: 
+    #   0 - slowly-changing continuous var
+    #   1 - fast-changing continuous var
+    #   2 - discrete var
+    mask: [0, 0, 0]
+    # The lower bound of each observation variable
+    low: [0, 0, 0]
+    # The upper bound of each observation variable
+    high: [1, 1, 1]
 wrappers: [] # no wrappers added for this example
 general:
   # save experiment data to ``./beobench_results`` directory

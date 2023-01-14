@@ -1,7 +1,7 @@
 agent:
   # Hyperparameters
   params:
-    num_episodes: 1460
+    num_episodes: 140
     horizon: 24
     gamma: 0.99
     num_steps: 20
@@ -11,7 +11,18 @@ agent:
     learning_rate_annealing: 0.999
     
 env:
-  # sinergym environment name
+  # Sinergym environment name
   name: Eplus-5Zone-hot-discrete-v1
-  # whether to normalise observations
+  # Whether to normalise observations
   normalize: True
+  # The observation variables to use for training
+  obs_to_keep: [0, 1, 8]
+  # The type of each observation variable: 
+  #   0 - slowly-changing continuous var
+  #   1 - fast-changing continuous var
+  #   2 - discrete var
+  mask: [0, 0, 0]
+  # The lower bound of each observation variable
+  low: [0, 0, 0]
+  # The upper bound of each observation variable
+  high: [1, 1, 1]

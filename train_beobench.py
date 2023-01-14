@@ -8,10 +8,8 @@ from hnp.environment import ObservationWrapper, create_env
 def main():
     # Create environment and wrap observations
 
-    obs_to_keep = np.array([0, 1, 8]) 
-    lows = np.array([0, 0, 0])
-    highs = np.array([1, 1, 1])
-    mask = np.array([0, 0, 0])
+    obs_to_keep = np.array(config["env"]["config"]["obs_to_keep"])
+    mask = np.array(config["env"]["config"]["mask"])
 
     env = create_env(config["env"]["config"])
     env = ObservationWrapper(env, obs_to_keep)
@@ -20,8 +18,6 @@ def main():
         env, 
         config["agent"]["config"],
         mask,
-        lows,
-        highs,
         results_dir=config["general"]["local_dir"],
         use_beobench=True
     )

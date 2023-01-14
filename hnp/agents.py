@@ -155,7 +155,7 @@ class QLearningAgent(Agent):
     Q-Learning Agent Class
     """
 
-    def __init__(self, env, config, obs_mask, low, high, results_dir="training_results", use_beobench=False, use_hnp=True) -> None:
+    def __init__(self, env, config, obs_mask, results_dir="training_results", use_beobench=False, use_hnp=True) -> None:
         """
         Constructor for Q-Learning agent
 
@@ -182,8 +182,6 @@ class QLearningAgent(Agent):
         self.learning_rate = config["learning_rate"]
         self.learning_rate_annealing = config["learning_rate_annealing"]
         self.n_steps = config["num_steps"]
-        self.low = low
-        self.high = high
         self.use_hnp = use_hnp
 
         # Indices of continuous vars
@@ -194,8 +192,8 @@ class QLearningAgent(Agent):
         self.permutation_idx = np.hstack((self.continuous_idx, self.discrete_idx))
 
         # The lower and upper bounds for continuous vars
-        self.cont_low = self.low[self.continuous_idx]
-        self.cont_high = self.high[self.continuous_idx]
+        self.cont_low = np.zeros(len(self.continuous_idx))
+        self.cont_high = np.ones(len(self.continuous_idx))
 
         self.obs_space_shape = self.get_obs_shape()
         self.act_space_shape = self.get_act_shape()
@@ -219,15 +217,15 @@ class QLearningAgent(Agent):
             Tuple of discretized observation space for continuous vars and
             the observation space for discrete vars
         """
-        steps = np.ones(len(self.low)) / self.n_steps
-        discretization_ticks = [
-            np.arange(self.low[i], self.high[i] + steps[i], steps[i])
+        step_size = 1 / self.n_steps
+        tile_coded_space = [
+            np.arange(0, 1 + step_size, step_size)
             for i in self.continuous_idx
         ]
 
         return tuple(
-            list(list(len(ticks) for ticks in discretization_ticks))
-            + list(self.high[self.discrete_idx])
+            list(list(len(tiles) for tiles in tile_coded_space))
+            + list(self.env.observation_space.high[self.discrete_idx])
         )
 
     def get_act_shape(self):
