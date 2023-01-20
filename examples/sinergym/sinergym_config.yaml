@@ -4,7 +4,7 @@ agent:
     num_episodes: 140
     horizon: 24
     gamma: 0.99
-    num_steps: 20
+    num_tiles: 20
     initial_epsilon: 1
     epsilon_annealing: 0.999
     learning_rate: 0.1
