@@ -8,7 +8,6 @@ from hnp.environment import ObservationWrapper, create_env
 
 
 def main(config_path):
-    # Create environment and wrap observations
     with open(config_path, "r") as conf_yml:
         config = yaml.safe_load(conf_yml)
 

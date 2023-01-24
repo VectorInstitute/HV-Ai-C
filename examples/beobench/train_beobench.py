@@ -6,8 +6,6 @@ from hnp.environment import ObservationWrapper, create_env
 
 
 def main():
-    # Create environment and wrap observations
-
     obs_to_keep = np.array(config["env"]["config"]["obs_to_keep"])
     mask = np.array(config["env"]["config"]["mask"])
 
