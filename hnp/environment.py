@@ -21,12 +21,10 @@ class ObservationWrapper(gym.ObservationWrapper):
         """
         Constructor for observation wrapper
 
-        Args:
-            env: Sinergym environment
-            obs_to_keep: Indices of state variables that are used
+        :param env: Sinergym environment
+        :param obs_to_keep: Indices of state variables that are used
 
-        Returns:
-            None
+        :return: None
         """
         super().__init__(env)
         self.env = env
@@ -36,23 +34,19 @@ class ObservationWrapper(gym.ObservationWrapper):
         """
         Remove the unused state variables from observation
 
-        Args:
-            obs: Full observation
+        :param observation: Full observation
 
-        Returns:
-            Filtered observation
+        :return: Filtered observation
         """
         return observation[self.obs_to_keep]
 
 
 def create_env(env_config: dict = None) -> gym.Env:
     """Create sinergym environment.
-    Args:
-        env_config (dict, optional): configuration kwargs for sinergym. Currently,
-            there is only a single key in this dictionary, "name". This sets
-            the name of the environment. Defaults to None.
-    Returns:
-        gym.Env: a configured gym environment.
+
+    :param env_config: Configuration kwargs for sinergym. Currently, there is only a single key in this dictionary, "name". This sets the name of the environment.
+
+    :return: A configured gym environment.
     """
 
     if not env_config:

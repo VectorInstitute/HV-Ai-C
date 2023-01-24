@@ -37,3 +37,19 @@ Agents
 
    .. automethod:: __init__
 
+Environment
+-----------
+
+.. currentmodule:: hnp.environment
+
+.. autoclass:: ObservationWrapper
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+   .. automethod:: __init__
+
+
+.. autofunction:: create_env
+
+
