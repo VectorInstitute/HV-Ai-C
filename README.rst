@@ -1,4 +1,4 @@
-.. start-in-sphinx-docs
+.. start-in-sphinx-home-docs
 
 ==================================================================
 Hyperspace Neighbour Penetration for Energy Efficient HVAC Control
@@ -12,7 +12,9 @@ A key assumption in HNP is that continuous state spaces with very incremental, l
 
 HNP is fully described in its `foundational paper <https://arxiv.org/pdf/2106.05497.pdf>`_.
 
-.. end-in-sphinx-docs
+.. end-in-sphinx-home-docs
+
+.. start-in-sphinx-getting-started-overview
 
 Supported Agents
 ================
@@ -36,12 +38,17 @@ BeoBench
 
 `Beobench <https://github.com/rdnfn/beobench)>`_ is a toolkit providing unified access to building control environments for RL (Sinergym also supported). It uses docker to manage all environment dependencies in the background. See detailed instruction on how to use Beobench `here <https://beobench.readthedocs.io/en/latest/>`_.
 
+.. end-in-sphinx-getting-started-overview
+
+
 Quickstart
 ============
 
 Requirements
 ------------
 - Python ≥ 3.9
+
+.. start-in-sphinx-getting-started-quickstart
 
 Installation
 ------------
@@ -97,3 +104,5 @@ This is a minimalist example of using the HNP Q-Learning agent in Sinergym
     agent.train()
     agent.save_results()
     env.close()
+
+.. end-in-sphinx-getting-started-quickstart

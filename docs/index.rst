@@ -4,10 +4,10 @@
    contain the root `toctree` directive.
 
 .. include:: ../README.rst
-   :start-after: start-in-sphinx-docs
-   :end-before: end-in-sphinx-docs
+   :start-after: start-in-sphinx-home-docs
+   :end-before: end-in-sphinx-home-docs
 
-Welcome to HNP's documentation!
+
 ===============================
 
 .. toctree::
@@ -16,8 +16,9 @@ Welcome to HNP's documentation!
 
    Home <self>
    getting_started
-   envs
-   guides/index
+   config
+   sinergym_tut
+   beobench_tut
 
 Indices and tables
 ==================
