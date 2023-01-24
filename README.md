@@ -21,5 +21,3 @@ The HNP package provides the following agents:
 * Random Action Agent: An agent that takes a random action 
 * Fixed Action Agent: An agent that always take a pre-defined action
 * HNP-enabled Q-Learning Agent: A Q-learning agent with built-in HNP that allows different types of observation variables
-
-

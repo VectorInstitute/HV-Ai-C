@@ -273,7 +273,7 @@ class QLearningAgent(Agent):
         if mode == "greedy":  # For evaluation purposes
             return np.argmax(self.qtb[tuple(obs_index)])
 
-    def get_vtb_idx_from_obs(self, obs: np.ndarray) -> tuple(np.ndarray, np.ndarray):
+    def get_vtb_idx_from_obs(self, obs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """
         Get the value table index from observation
 
@@ -299,7 +299,7 @@ class QLearningAgent(Agent):
 
         return obs_index, cont_obs_index_floats
 
-    def get_next_value(self, obs: np.ndarray) -> tuple(float, np.ndarray):
+    def get_next_value(self, obs: np.ndarray) -> tuple[float, np.ndarray]:
         """
         Computes the new state value
 

@@ -34,3 +34,8 @@ Eplus-*
 # Output files
 *results
 *.png
+
+# Sphinx files
+_build/
+_static/
+_templates/

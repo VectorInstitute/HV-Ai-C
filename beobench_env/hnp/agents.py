@@ -8,6 +8,7 @@ from datetime import datetime, date
 from abc import ABC, abstractmethod
 
 import numpy as np
+from sinergym.envs import EplusEnv
 
 from hnp.hnp import HNP
 
@@ -21,7 +22,13 @@ class Agent(ABC):
     Parent Reinforcement Learning Agent Class
     """
 
-    def __init__(self, env, config, results_dir="training_results", use_beobench=False) -> None:
+    def __init__(
+        self,
+        env: EplusEnv,
+        config: dict,
+        results_dir: str = "training_results",
+        use_beobench: bool = False,
+    ) -> None:
         """
         Constructor for RL agent
 
@@ -155,7 +162,15 @@ class QLearningAgent(Agent):
     Q-Learning Agent Class
     """
 
-    def __init__(self, env, config, obs_mask, results_dir="training_results", use_beobench=False, use_hnp=True) -> None:
+    def __init__(
+        self,
+        env: EplusEnv,
+        config: dict,
+        obs_mask: np.ndarray,
+        results_dir: str = "training_results",
+        use_beobench: bool = False,
+        use_hnp: bool = True,
+    ) -> None:
         """
         Constructor for Q-Learning agent
 
@@ -181,7 +196,7 @@ class QLearningAgent(Agent):
         self.epsilon_annealing = config["epsilon_annealing"]
         self.learning_rate = config["learning_rate"]
         self.learning_rate_annealing = config["learning_rate_annealing"]
-        self.n_steps = config["num_steps"]
+        self.n_tiles = config["num_tiles"]
         self.use_hnp = use_hnp
 
         # Indices of continuous vars
@@ -206,7 +221,7 @@ class QLearningAgent(Agent):
         if self.use_hnp:
             self.hnp = HNP(np.where(obs_mask == 0)[0])
 
-    def get_obs_shape(self):
+    def get_obs_shape(self) -> tuple:
         """
         Get the observation space shape
 
@@ -217,10 +232,9 @@ class QLearningAgent(Agent):
             Tuple of discretized observation space for continuous vars and
             the observation space for discrete vars
         """
-        step_size = 1 / self.n_steps
+        tile_size = 1 / self.n_tiles
         tile_coded_space = [
-            np.arange(0, 1 + step_size, step_size)
-            for i in self.continuous_idx
+            np.arange(0, 1 + tile_size, tile_size) for _ in self.continuous_idx
         ]
 
         return tuple(
@@ -228,7 +242,7 @@ class QLearningAgent(Agent):
             + list(self.env.observation_space.high[self.discrete_idx])
         )
 
-    def get_act_shape(self):
+    def get_act_shape(self) -> int:
         """
         Get the action space shape
 
@@ -240,7 +254,7 @@ class QLearningAgent(Agent):
         """
         return self.env.action_space.n
 
-    def choose_action(self, obs_index, mode="explore"):
+    def choose_action(self, obs_index: np.ndarray, mode: str="explore") -> int:
         """
         Get action following epsilon-greedy policy
 
@@ -259,7 +273,7 @@ class QLearningAgent(Agent):
         if mode == "greedy":  # For evaluation purposes
             return np.argmax(self.qtb[tuple(obs_index)])
 
-    def get_vtb_idx_from_obs(self, obs):
+    def get_vtb_idx_from_obs(self, obs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """
         Get the value table index from observation
 
@@ -285,7 +299,7 @@ class QLearningAgent(Agent):
 
         return obs_index, cont_obs_index_floats
 
-    def get_next_value(self, obs):
+    def get_next_value(self, obs: np.ndarray) -> tuple[float, np.ndarray]:
         """
         Computes the new state value
 
@@ -341,8 +355,12 @@ class QLearningAgent(Agent):
             prev_vtb_index = next_vtb_index
             if n_steps == self.config["horizon"]:  # New episode
                 logger.info("num_timesteps: %d", n_steps)
-                logger.info("Episode %d --- Reward: %d Average reward per timestep: %.2f",
-                    ep_n, episode_reward, (episode_reward/n_steps))
+                logger.info(
+                    "Episode %d --- Reward: %d Average reward per timestep: %.2f",
+                    ep_n,
+                    episode_reward,
+                    (episode_reward / n_steps),
+                )
                 avg_reward = episode_reward / n_steps
                 self.rewards.append(episode_reward)
                 self.average_rewards.append(avg_reward)
