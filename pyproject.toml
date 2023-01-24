@@ -1,16 +1,16 @@
 name = "hnp"
-version = "0.0.1"
+version = "2.0"
 authors = [
+  { name="Marshall Wang", email="marshall.wang@vectorinstitute.ai" },
   { name="Thomas Jiralerspong", email="thomasjiralerspong@gmail.com" },
   { name="John Willes", email="john.willes@vectorinstitute.ai" },
-  { name="Marshall Wang", email="marshall.wang@vectorinstitute.ai" },
 ]
-description = "Agent which implements the Hyperspace Neighbour Penetration algorithm"
+description = "Hyperspace Neighbour Penetration package"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: BSD-3-Clause License",
     "Operating System :: OS Independent",
 ]
 
