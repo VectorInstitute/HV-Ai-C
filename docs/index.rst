@@ -10,7 +10,10 @@ Welcome to HNP's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   Home <self>
+   getting_started
+   envs
+   guides/index
 
 Indices and tables
 ==================
