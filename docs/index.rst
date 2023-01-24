@@ -16,6 +16,7 @@
 
    Home <self>
    getting_started
+   api
    config
    sinergym_tut
    beobench_tut

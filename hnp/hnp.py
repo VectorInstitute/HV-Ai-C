@@ -11,14 +11,10 @@ class HNP:
     """
 
     def __init__(self, slow_continuous_idx) -> None:
-        """
-        Constructor for HNP object
+        """Constructor for HNP object
 
-        Args:
-            slow_continuous_idx: Indices for slowly-changing continuous vars
-
-        Returns:
-            None
+        :param slow_continuous_idx: Indices for slowly-changing continuous vars
+        :return: None
         """
         self.slow_continuous_idx = slow_continuous_idx
 
@@ -32,16 +28,13 @@ class HNP:
             ).T.reshape(-1, n_slow_cont)
 
     def get_next_value(self, vtb, full_obs_index, cont_obs_index_floats):
-        """
-        Computes the new state value of tiles using HNP
+        """Computes the new state value of tiles using HNP
 
-        Args:
-            vtb: State value table
-            full_obs_index: Value table index of observation
-            cont_obs_index_floats: Continuous obseravation var indices
+        :param vtb: State value table
+        :param full_obs_index: Value table index of observation
+        :param cont_obs_index_floats: Continuous obseravation var indices
 
-        Returns:
-            next_value: Next state value for continuous obseravation vars
+        :return: Next state value for continuous obseravation vars
         """
         if len(self.slow_continuous_idx) == 0:  # No HNP calculation needed
             return vtb[tuple(full_obs_index)]

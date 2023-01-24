@@ -1,0 +1,39 @@
+API Documentation
+=================
+
+HNP
+---
+.. currentmodule:: hnp.hnp
+
+.. autoclass:: HNP
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+   .. automethod:: __init__
+
+Agents
+------
+.. currentmodule:: hnp.agents
+
+.. autoclass:: QLearningAgent
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+   .. automethod:: __init__
+
+.. autoclass:: FixedActionAgent
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+   .. automethod:: __init__
+
+.. autoclass:: RandomActionAgent
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+   .. automethod:: __init__
+

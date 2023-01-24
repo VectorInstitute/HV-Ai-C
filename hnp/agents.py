@@ -29,15 +29,14 @@ class Agent(ABC):
         results_dir: str = "training_results",
         use_beobench: bool = False,
     ) -> None:
-        """
-        Constructor for RL agent
+        """Constructor for RL agent
 
-        Args:
-            env: Gym environment
-            config: Agent configuration
+        :param env: Gym environment
+        :param config: Agent configuration
+        :param results_dir: Directory to save results
+        :param use_beobench: Enable beobench
 
-        Returns:
-            None
+        :return: None
         """
         self.env = env
         self.config = config
@@ -47,26 +46,11 @@ class Agent(ABC):
 
     @abstractmethod
     def train(self) -> None:
-        """
-        RL agent training
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
+        """RL agent training"""
 
     def save_results(self) -> None:
-        """
-        Saves training result
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
+        """Saves training result"""
+        
         today = date.today()
         day = today.strftime("%Y_%b_%d")
         now = datetime.now()
@@ -86,15 +70,8 @@ class RandomActionAgent(Agent):
     """
 
     def train(self) -> None:
-        """
-        Random Action agent training
+        """Random Action agent training"""
 
-        Args:
-            None
-
-        Returns:
-            None
-        """
         self.env.reset()
         episode_reward = 0
         ep_n = 0
@@ -125,15 +102,8 @@ class FixedActionAgent(Agent):
     """
 
     def train(self) -> None:
-        """
-        Fixed Action agent training
+        """Fixed Action agent training"""
 
-        Args:
-            None
-
-        Returns:
-            None
-        """
         self.env.reset()
         episode_reward = 0
         ep_n = 0
@@ -174,17 +144,14 @@ class QLearningAgent(Agent):
         """
         Constructor for Q-Learning agent
 
-        Args:
-            env: Gym environment
-            config: Agent configuration
-            obs_mask: Mask to categorize variables into
-                slowly-changing cont, fast-changing cont, and discrete vars
-            low: Lower bound of the state variables
-            high: Upper bound of the state variables
-            use_hnp: Whether to use HNP
+        :param env: Gym environment
+        :param config: Agent configuration
+        :param obs_mask: Mask to categorize variables into slowly-changing cont, fast-changing cont, and discrete vars
+        :param results_dir: Directory to save results
+        :param use_beobench: Enable Beobench
+        :param use_hnp: Enable HNP
 
-        Returns:
-            None
+        :return: None
         """
         # 3 types --> slowly-changing cont, fast-changing cont, discrete observations
         # actions --> always discrete
@@ -225,12 +192,7 @@ class QLearningAgent(Agent):
         """
         Get the observation space shape
 
-        Args:
-            None
-
-        Returns:
-            Tuple of discretized observation space for continuous vars and
-            the observation space for discrete vars
+        :return: Tuple of discretized observation space for continuous vars and the observation space for discrete vars
         """
         tile_size = 1 / self.n_tiles
         tile_coded_space = [
@@ -246,11 +208,7 @@ class QLearningAgent(Agent):
         """
         Get the action space shape
 
-        Args:
-            None
-
-        Returns:
-            Action space shape
+        :return: Action space shape
         """
         return self.env.action_space.n
 
@@ -258,12 +216,10 @@ class QLearningAgent(Agent):
         """
         Get action following epsilon-greedy policy
 
-        Args:
-            obs_index: Observation index
-            mode: Training or evaluation
+        :param obs_index: Observation index
+        :param mode: Training or evaluation
 
-        Returns:
-            Action
+        :return: Action
         """
         if mode == "explore":
             if np.random.rand(1) < self.epsilon:
@@ -277,12 +233,9 @@ class QLearningAgent(Agent):
         """
         Get the value table index from observation
 
-        Args:
-            obs: Observation
+        :param obs: Observation
 
-        Returns:
-            obs_index: Value table index of observation
-            cont_obs_index_floats: Continuous obseravation var indices
+        :return: Value table index of observation and continuous observation var indices
         """
         obs = obs[self.permutation_idx]
         cont_obs = obs[: len(self.continuous_idx)]
@@ -303,12 +256,9 @@ class QLearningAgent(Agent):
         """
         Computes the new state value
 
-        Args:
-            obs: Observation
+        :param obs: Observation
 
-        Returns:
-            next_value: Next state value
-            full_obs_index: Value table index of observation
+        :return: Next state value and value table index of observation
         """
         full_obs_index, cont_obs_index_floats = self.get_vtb_idx_from_obs(obs)
         next_value = self.vtb[tuple(full_obs_index)]
@@ -321,15 +271,7 @@ class QLearningAgent(Agent):
         return next_value, full_obs_index
 
     def train(self) -> None:
-        """
-        Q-Learning agent training
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
+        """Q-Learning agent training"""
 
         # n people, outdoor temperature, indoor temperature
         obs = self.env.reset()
