@@ -1,14 +1,20 @@
 agent:
-  # Hyperparameters
-  params:
-    num_episodes: 1459
-    horizon: 24
-    gamma: 0.99
-    num_tiles: 20
-    initial_epsilon: 1
-    epsilon_annealing: 0.999
-    learning_rate: 0.1
-    learning_rate_annealing: 0.999
+  # Number of episodes 
+  num_episodes: 1460
+  # Maximum number of time steps in each episode
+  horizon: 24
+  # Discount factor
+  gamma: 0.99
+  # Number of tiles for tile coding
+  num_tiles: 20
+  # Initial value for Epsilon
+  initial_epsilon: 1
+  # Annealing rate for Epsilon
+  epsilon_annealing: 0.999
+  # Initial learning rate
+  learning_rate: 0.1
+  # Annealing rate for learning rate
+  learning_rate_annealing: 0.999
     
 env:
   # Sinergym environment name
@@ -22,7 +28,3 @@ env:
   #   1 - fast-changing continuous var
   #   2 - discrete var
   mask: [0, 0, 0]
-  # The lower bound of each observation variable
-  low: [0, 0, 0]
-  # The upper bound of each observation variable
-  high: [1, 1, 1]

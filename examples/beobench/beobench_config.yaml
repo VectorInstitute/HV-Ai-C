@@ -27,10 +27,6 @@ env:
     #   1 - fast-changing continuous var
     #   2 - discrete var
     mask: [0, 0, 0]
-    # The lower bound of each observation variable
-    low: [0, 0, 0]
-    # The upper bound of each observation variable
-    high: [1, 1, 1]
 wrappers: [] # no wrappers added for this example
 general:
   # save experiment data to ``./beobench_results`` directory

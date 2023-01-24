@@ -8,12 +8,6 @@ A key assumption in HNP is that continuous state spaces with very incremental, l
 
 HNP is fully described in its [foundational paper](https://arxiv.org/pdf/2106.05497.pdf).
 
-# Dependencies
-
-* Python ≥ 3.9
-* [Sinergym](https://github.com/ugr-sail/sinergym)
-* [NumPy](https://github.com/numpy/numpy)
-
 # Supported Agents
 
 The HNP package provides the following agents:
@@ -21,3 +15,60 @@ The HNP package provides the following agents:
 * Random Action Agent: An agent that takes a random action 
 * Fixed Action Agent: An agent that always take a pre-defined action
 * HNP-enabled Q-Learning Agent: A Q-learning agent with built-in HNP that allows different types of observation variables
+
+# Requirements
+
+* Python ≥ 3.9
+* [Sinergym](https://github.com/ugr-sail/sinergym)
+
+# Installation
+
+To install `hnp` from [PyPI]():
+```
+pip install hnp
+```
+
+# Example Usage
+
+This is a minimalist example of using the HNP Q-Learning agent in Sinergym
+
+```
+import numpy as np
+
+from hnp.agents import QLearningAgent
+from hnp.environment import ObservationWrapper, create_env
+
+config = {
+    "agent": {
+        "num_episodes": 1460,
+        "horizon": 24,
+        "gamma": 0.99,
+        "num_tiles": 20,
+        "initial_epsilon": 1,
+        "epsilon_annealing": 0.999,
+        "learning_rate": 0.1,
+        "learning_rate_annealing": 0.999
+    },
+    "env": {
+        "name": "Eplus-5Zone-hot-discrete-v1",
+        "normalize": True,
+        "obs_to_keep": [4, 5, 13],
+        "mask": [0, 0, 0]
+    }
+}
+
+obs_to_keep = np.array(config["env"]["obs_to_keep"])
+mask = np.array(config["env"]["mask"])
+
+env = create_env(config["env"])
+env = ObservationWrapper(env, obs_to_keep)
+
+agent = QLearningAgent(
+    env, 
+    config["agent"]["params"],
+    mask,
+)
+agent.train()
+agent.save_results()
+env.close()
+```

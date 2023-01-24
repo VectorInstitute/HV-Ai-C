@@ -20,7 +20,7 @@ def main(config_path):
 
     agent = QLearningAgent(
         env, 
-        config["agent"]["params"],
+        config["agent"],
         mask,
     )
     agent.train()
