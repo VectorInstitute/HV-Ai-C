@@ -6,7 +6,7 @@ authors = [
   { name="John Willes", email="john.willes@vectorinstitute.ai" },
 ]
 description = "Hyperspace Neighbour Penetration package"
-readme = "README.md"
+readme = "README.rst"
 requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
