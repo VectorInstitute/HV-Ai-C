@@ -296,13 +296,13 @@ class QLearningAgent(Agent):
             n_steps += 1
             prev_vtb_index = next_vtb_index
             if n_steps == self.config["horizon"]:  # New episode
-                logger.info("num_timesteps: %d", n_steps)
-                logger.info(
-                    "Episode %d --- Reward: %d Average reward per timestep: %.2f",
-                    ep_n,
-                    episode_reward,
-                    (episode_reward / n_steps),
-                )
+                if ep_n % 10 == 0:
+                    logger.info(
+                        "Episode %d --- Reward: %d Average reward per timestep: %.2f",
+                        ep_n,
+                        episode_reward,
+                        (episode_reward / n_steps),
+                    )
                 avg_reward = episode_reward / n_steps
                 self.rewards.append(episode_reward)
                 self.average_rewards.append(avg_reward)
