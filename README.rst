@@ -15,7 +15,7 @@ Reinforcement Learning with Hyperspace Neighbour Penetration for Energy Efficien
         :target: https://opensource.org/licenses/BSD-3-Clause
         :alt: License
 
-Data center temperature control is a critical process for maintaining high quality of service. While maintaining temperatures in appropriate temperature bands is paramount, it is also important to consider that every heating or cooling strategy has associated environmental and economic costs. For example, a cooling strategy that makes excessive or unnecessary use of air conditioning will consume more energy than a strategy that better leverages free cooling. As long as operational constraints are satisfied, opportunities to discover temperature control solutions that minimize energy utilization are highly valuable. This repository provides a solution for training a reinforcement learning (RL) agent to perform temperature control in a room. Click `here <https://hnp.readthedocs.io>`_ for detailed documentation.
+Data center temperature control is a critical process for maintaining high quality of service. While maintaining temperatures in appropriate temperature bands is paramount, it is also important to consider that every heating or cooling strategy has associated environmental and economic costs. For example, a cooling strategy that makes excessive or unnecessary use of air conditioning will consume more energy than a strategy that better leverages free cooling. As long as operational constraints are satisfied, opportunities to discover temperature control solutions that minimize energy utilization are highly valuable. This repository provides a solution for training a reinforcement learning (RL) agent to perform temperature control in a room. Click `here <https://hnp.readthedocs.io>`__ for detailed documentation.
 
 Features
 ========
@@ -40,12 +40,12 @@ Supported Environments
 Sinergym
 --------
 
-`Sinergym <https://github.com/ugr-sail/sinergym>`_ is a building control environment that follows OpeanAI Gym interface and uses EnergyPlus simulator. To use Sinergym, see detailed instruction on how to install `here <https://ugr-sail.github.io/sinergym/compilation/main/pages/installation.html>`_.
+`Sinergym <https://github.com/ugr-sail/sinergym>`_ is a building control environment that follows OpeanAI Gym interface and uses EnergyPlus simulator. To use Sinergym, see detailed instruction on how to install `here <https://ugr-sail.github.io/sinergym/compilation/main/pages/installation.html>`__.
 
 Beobench
 --------
 
-`Beobench <https://github.com/rdnfn/beobench>`_ is a toolkit providing unified access to building control environments for RL (Sinergym also supported). It uses docker to manage all environment dependencies in the background. See detailed instruction on how to use Beobench `here <https://beobench.readthedocs.io/en/latest/>`_.
+`Beobench <https://github.com/rdnfn/beobench>`_ is a toolkit providing unified access to building control environments for RL (Sinergym also supported). It uses docker to manage all environment dependencies in the background. See detailed instruction on how to use Beobench `here <https://beobench.readthedocs.io/en/latest/>`__.
 
 Supported Agents
 ================

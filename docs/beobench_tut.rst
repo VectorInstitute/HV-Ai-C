@@ -9,11 +9,11 @@ This tutorial will walk you through the steps to training a RL agent using the H
 
 1.  Navigate to ``/examples/beobench``, and you will see the following files:
 
-  * ``beobench_config.yaml``: Agent and environment configuration file for HNP and Beobench. It has all the settings shown in the configuration page, but the structure follows the Beobench format. For more information on Beobench configuration requirements, check out this `link <https://beobench.readthedocs.io/en/latest/guides/configuration.html>`_.
+  * ``beobench_config.yaml``: Agent and environment configuration file for HNP and Beobench. It has all the settings shown in the configuration page, but the structure follows the Beobench format. For more information on Beobench configuration requirements, check out this `link <https://beobench.readthedocs.io/en/latest/guides/configuration.html>`__.
 
   * ``train_beobench.py``: The RL agent training script.
 
-  * ``beobench_env``: This directory contains Beobench customized environment. For more information on how to create your own environment in Beobench, check out this `link <https://beobench.readthedocs.io/en/latest/guides/add_env.html>`_.
+  * ``beobench_env``: This directory contains Beobench customized environment. For more information on how to create your own environment in Beobench, check out this `link <https://beobench.readthedocs.io/en/latest/guides/add_env.html>`__.
 
     * ``Dockerfile``: Dockerfile for building the customized environment. In this example, we are still using Sinergym as the underlying building control environment, and included HNP package installation as well.
 
