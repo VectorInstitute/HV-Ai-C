@@ -20,3 +20,4 @@
    sinergym_tut
    beobench_tut
    api
+   credits_license

@@ -1,5 +1,17 @@
 .. start-in-sphinx-home-docs
 
+.. image:: https://img.shields.io/pypi/v/hnp.svg
+        :target: https://pypi.python.org/pypi/hnp
+
+.. image:: https://readthedocs.org/projects/hnp/badge/?version=latest
+        :target: https://hnp.readthedocs.io/en/latest/?version=latest
+        :alt: Documentation Status
+
+.. image:: https://img.shields.io/pypi/l/hnp.svg
+        :target: https://opensource.org/licenses/BSD-3-Clause
+        :alt: License
+
+
 ==============================================================================================
 Reinforcement Learning with Hyperspace Neighbour Penetration for Energy Efficient HVAC Control
 ==============================================================================================
@@ -34,7 +46,7 @@ Sinergym
 Beobench
 --------
 
-`Beobench <https://github.com/rdnfn/beobench)>`_ is a toolkit providing unified access to building control environments for RL (Sinergym also supported). It uses docker to manage all environment dependencies in the background. See detailed instruction on how to use Beobench `here <https://beobench.readthedocs.io/en/latest/>`_.
+`Beobench <https://github.com/rdnfn/beobench>`_ is a toolkit providing unified access to building control environments for RL (Sinergym also supported). It uses docker to manage all environment dependencies in the background. See detailed instruction on how to use Beobench `here <https://beobench.readthedocs.io/en/latest/>`_.
 
 Supported Agents
 ================
@@ -113,3 +125,11 @@ This is a minimalist example of using the HNP Q-Learning agent in Sinergym
     env.close()
 
 .. end-in-sphinx-getting-started-quickstart
+
+Documentation
+=============
+Detailed package documentation: `HNP Docs <https://hnp.readthedocs.io>`
+
+License
+=======
+The code in this repository is published under 3-Clause BSD license (see ``LICENSE`` file).
