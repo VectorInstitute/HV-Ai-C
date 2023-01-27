@@ -1,5 +1,9 @@
 .. start-in-sphinx-home-docs
 
+==============================================================================================
+Reinforcement Learning with Hyperspace Neighbour Penetration for Energy Efficient HVAC Control
+==============================================================================================
+
 .. image:: https://img.shields.io/pypi/v/hnp.svg
         :target: https://pypi.python.org/pypi/hnp
 
@@ -10,11 +14,6 @@
 .. image:: https://img.shields.io/pypi/l/hnp.svg
         :target: https://opensource.org/licenses/BSD-3-Clause
         :alt: License
-
-
-==============================================================================================
-Reinforcement Learning with Hyperspace Neighbour Penetration for Energy Efficient HVAC Control
-==============================================================================================
 
 Data center temperature control is a critical process for maintaining high quality of service. While maintaining temperatures in appropriate temperature bands is paramount, it is also important to consider that every heating or cooling strategy has associated environmental and economic costs. For example, a cooling strategy that makes excessive or unnecessary use of air conditioning will consume more energy than a strategy that better leverages free cooling. As long as operational constraints are satisfied, opportunities to discover temperature control solutions that minimize energy utilization are highly valuable. This repository provides a solution for training a reinforcement learning (RL) agent to perform temperature control in a room. Click `here <https://hnp.readthedocs.io>`_ for detailed documentation.
 
