@@ -127,7 +127,7 @@ This is a minimalist example of using the HNP Q-Learning agent in Sinergym
 
 Documentation
 =============
-Detailed package documentation: `HNP Docs <https://hnp.readthedocs.io>`
+Detailed package documentation: `HNP Docs <https://hnp.readthedocs.io>`_
 
 License
 =======
