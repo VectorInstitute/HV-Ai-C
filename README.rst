@@ -40,7 +40,7 @@ Supported Environments
 Sinergym
 --------
 
-`Sinergym <https://github.com/ugr-sail/sinergym>`_ is a building control environment that follows OpeanAI Gym interface and uses EnergyPlus simulator. To use Sinergym, see detailed instruction on how to install `here <https://ugr-sail.github.io/sinergym/compilation/main/pages/installation.html>`__.
+`Sinergym <https://github.com/ugr-sail/sinergym>`_ is a building control environment that follows OpenAI Gym interface and uses EnergyPlus simulator. To use Sinergym, see detailed instruction on how to install `here <https://ugr-sail.github.io/sinergym/compilation/main/pages/installation.html>`__.
 
 Beobench
 --------
