@@ -83,37 +83,15 @@ RUN python -m pip install --upgrade pip
 RUN pip install --upgrade setuptools
 RUN apt-get update && apt-get upgrade -y && apt-get install -y git
 
+RUN pip install hnp
+
 # CUSTOM BEOBENCH
 # remove copies based on sinergym repo build context
 # replaced with repo clone step
 RUN git clone https://github.com/ugr-sail/sinergym.git --branch=v2.1.2
 
-WORKDIR /root
-RUN mkdir mbrl 
-COPY . ./mbrl
-# WORKDIR /mbrl
-# RUN mkdir hnp
-# RUN mkdir hnp.egg-info
-# COPY ./hnp /root/mbrl/hnp
-# COPY ./hnp.egg-info /root/mbrl/hnp.egg-info
-# COPY ./pyproject.toml /root/mbrl/
-# COPY ./setup.py /root/mbrl/
-# WORKDIR /MBRL-HVAC-Energy-Optimization
-#COPY requirements.txt .
-#COPY MANIFEST.in .
-#COPY setup.py .
-#COPY DRL_battery.py .
-#COPY load_agent.py .
-#COPY sinergym /sinergym/sinergym
-#COPY tests /sinergym/tests
-#COPY examples /sinergym/examples
-#COPY check_run_times.py .
-#COPY try_env.py .
-# COPY . /hnp_src
-RUN pip install ./mbrl
-
 WORKDIR /sinergym
-RUN pip install -e .${SINERGYM_EXTRAS}
+RUN pip install -e .
 
 
 #uninstall 3.6 python default version
