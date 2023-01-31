@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "hnp"
-version = "1.0.1"
+version = "1.0.2"
 authors = [
   { name="Marshall Wang", email="marshall.wang@vectorinstitute.ai" },
   { name="Thomas Jiralerspong", email="thomasjiralerspong@gmail.com" },

@@ -40,7 +40,7 @@ Supported Environments
 Sinergym
 --------
 
-`Sinergym <https://github.com/ugr-sail/sinergym>`_ is a building control environment that follows OpeanAI Gym interface and uses EnergyPlus simulator. To use Sinergym, see detailed instruction on how to install `here <https://ugr-sail.github.io/sinergym/compilation/main/pages/installation.html>`__.
+`Sinergym <https://github.com/ugr-sail/sinergym>`_ is a building control environment that follows OpeanAI Gym interface and uses EnergyPlus simulator. To use Sinergym, see detailed instruction on how to install `here <https://ugr-sail.github.io/sinergym/compilation/main/pages/installation.html>`__. 
 
 Beobench
 --------
@@ -65,13 +65,14 @@ Quickstart
 Requirements
 ------------
 - Python ≥ 3.9
+- Sinergym == 2.2.0
 
 .. start-in-sphinx-getting-started-quickstart
 
 Installation
 ------------
 
-To install ``hnp`` from `PyPI <https://pypi.org>`_:
+To install ``hnp`` from `PyPI <https://pypi.org/project/hnp/>`_:
 
 .. code-block:: console
 

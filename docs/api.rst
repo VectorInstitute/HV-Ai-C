@@ -16,14 +16,7 @@ Agents
 ------
 .. currentmodule:: hnp.agents
 
-.. autoclass:: QLearningAgent
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-   .. automethod:: __init__
-
-.. autoclass:: FixedActionAgent
+.. autoclass:: Agent
    :members:
    :undoc-members:
    :show-inheritance:
@@ -37,6 +30,20 @@ Agents
 
    .. automethod:: __init__
 
+.. autoclass:: FixedActionAgent
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+   .. automethod:: __init__
+
+.. autoclass:: QLearningAgent
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+   .. automethod:: __init__
+      
 Environment
 -----------
 

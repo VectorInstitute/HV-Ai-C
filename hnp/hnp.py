@@ -11,7 +11,8 @@ class HNP:
     """
 
     def __init__(self, slow_continuous_idx) -> None:
-        """Constructor for HNP object
+        """
+        Constructor for HNP object
 
         :param slow_continuous_idx: Indices for slowly-changing continuous vars
         :return: None
@@ -28,7 +29,12 @@ class HNP:
             ).T.reshape(-1, n_slow_cont)
 
     def get_next_value(self, vtb, full_obs_index, cont_obs_index_floats):
-        """Computes the new state value of tiles using HNP
+        """
+        Computes the new state value of tiles using HNP
+
+        HNP is only applied to slowly-changing continuous variables. First compute the next state 
+        tile portions from the float indices, then compute the next state value using the tile
+        portions.
 
         :param vtb: State value table
         :param full_obs_index: Value table index of observation

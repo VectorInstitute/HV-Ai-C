@@ -10,6 +10,8 @@ from sinergym.utils.constants import (
     RANGES_DATACENTER,
     RANGES_WAREHOUSE,
     RANGES_OFFICE,
+    RANGES_OFFICEGRID,
+    RANGES_SHOP
 )
 
 
@@ -17,6 +19,7 @@ class ObservationWrapper(gym.ObservationWrapper):
     """
     Sinergym environment wrapper to modify observations
     """
+
     def __init__(self, env, obs_to_keep):
         """
         Constructor for observation wrapper
@@ -42,9 +45,11 @@ class ObservationWrapper(gym.ObservationWrapper):
 
 
 def create_env(env_config: dict = None) -> gym.Env:
-    """Create sinergym environment.
+    """
+    Create sinergym environment
 
-    :param env_config: Configuration kwargs for sinergym. Currently, there is only a single key in this dictionary, "name". This sets the name of the environment.
+    :param env_config: Configuration kwargs for sinergym. Currently, there is only a single key
+     in this dictionary, "name". This sets the name of the environment.
 
     :return: A configured gym environment.
     """
@@ -54,10 +59,8 @@ def create_env(env_config: dict = None) -> gym.Env:
 
     env = gym.make(env_config["name"])
 
-    # Taken from
-    # https://github.com/jajimer/sinergym/blob/24a37965f4e749faf6caaa3d4ece95330a478904/DRL_battery.py#L221
+    # Taken from https://github.com/ugr-sail/sinergym/blob/main/scripts/DRL_battery.py
     if "normalize" in env_config and env_config["normalize"] is True:
-        # We have to know what dictionary ranges to use
         env_type = env_config["name"].split("-")[1]
         if env_type == "datacenter":
             ranges = RANGES_DATACENTER
@@ -67,6 +70,10 @@ def create_env(env_config: dict = None) -> gym.Env:
             ranges = RANGES_WAREHOUSE
         elif env_type == "office":
             ranges = RANGES_OFFICE
+        elif env_type == "officegrid":
+            ranges = RANGES_OFFICEGRID
+        elif env_type == "shop":
+            ranges = RANGES_SHOP
         else:
             raise NameError(f"env_type {env_type} is not valid, check environment name")
         env = NormalizeObservation(env, ranges=ranges)

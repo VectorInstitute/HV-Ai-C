@@ -29,7 +29,8 @@ class Agent(ABC):
         results_dir: str = "training_results",
         use_beobench: bool = False,
     ) -> None:
-        """Constructor for RL agent
+        """
+        Constructor for RL agent
 
         :param env: Gym environment
         :param config: Agent configuration
@@ -46,11 +47,15 @@ class Agent(ABC):
 
     @abstractmethod
     def train(self) -> None:
-        """RL agent training"""
+        """
+        RL agent training
+        """
 
     def save_results(self) -> None:
-        """Saves training result"""
-        
+        """
+        Saves training result
+        """
+
         today = date.today()
         day = today.strftime("%Y_%b_%d")
         now = datetime.now()
@@ -70,7 +75,9 @@ class RandomActionAgent(Agent):
     """
 
     def train(self) -> None:
-        """Random Action agent training"""
+        """
+        Random Action agent training
+        """
 
         self.env.reset()
         episode_reward = 0
@@ -102,7 +109,9 @@ class FixedActionAgent(Agent):
     """
 
     def train(self) -> None:
-        """Fixed Action agent training"""
+        """
+        Fixed Action agent training
+        """
 
         self.env.reset()
         episode_reward = 0
@@ -146,7 +155,8 @@ class QLearningAgent(Agent):
 
         :param env: Gym environment
         :param config: Agent configuration
-        :param obs_mask: Mask to categorize variables into slowly-changing cont, fast-changing cont, and discrete vars
+        :param obs_mask: Mask to categorize variables into slowly-changing continuous,
+         fast-changing continuous, and discrete variables
         :param results_dir: Directory to save results
         :param use_beobench: Enable Beobench
         :param use_hnp: Enable HNP
@@ -190,9 +200,13 @@ class QLearningAgent(Agent):
 
     def get_obs_shape(self) -> tuple:
         """
-        Get the observation space shape
+        Get the observation space shape 
+        
+        The state space for continuous variables are tile coded based on the number of tiles set
+        in the configuration file.
 
-        :return: Tuple of discretized observation space for continuous vars and the observation space for discrete vars
+        :return: Tuple of discretized observation space for continuous variables and the observation
+         space for discrete variables
         """
         tile_size = 1 / self.n_tiles
         tile_coded_space = [
@@ -212,7 +226,7 @@ class QLearningAgent(Agent):
         """
         return self.env.action_space.n
 
-    def choose_action(self, obs_index: np.ndarray, mode: str="explore") -> int:
+    def choose_action(self, obs_index: np.ndarray, mode: str = "explore") -> int:
         """
         Get action following epsilon-greedy policy
 
@@ -233,9 +247,12 @@ class QLearningAgent(Agent):
         """
         Get the value table index from observation
 
+        For continuous variables, first get the indices as floats, then round to integers and stack
+        them with discrete variable indices
+
         :param obs: Observation
 
-        :return: Value table index of observation and continuous observation var indices
+        :return: Value table index and continuous variable indices as floats
         """
         obs = obs[self.permutation_idx]
         cont_obs = obs[: len(self.continuous_idx)]
@@ -256,6 +273,9 @@ class QLearningAgent(Agent):
         """
         Computes the new state value
 
+        If not using HNP, the new state value is retrieved from the value table directly.
+        For HNP computation, refer to the get_next_value function in HNP class.
+
         :param obs: Observation
 
         :return: Next state value and value table index of observation
@@ -271,7 +291,13 @@ class QLearningAgent(Agent):
         return next_value, full_obs_index
 
     def train(self) -> None:
-        """Q-Learning agent training"""
+        """
+        Q-Learning agent training
+
+        The training follows conventional Q-Learning update rule. If the episode length is less than
+        the total number of weather data points, then the environment would not reset by the end of
+        the episode. The environment only resets when all the weather data points have been used up.
+        """
 
         # n people, outdoor temperature, indoor temperature
         obs = self.env.reset()
