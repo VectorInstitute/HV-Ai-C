@@ -38,9 +38,9 @@ class HNP:
 
         :param vtb: State value table
         :param full_obs_index: Value table index of observation
-        :param cont_obs_index_floats: Continuous obseravation var indices
+        :param cont_obs_index_floats: Continuous variable indices
 
-        :return: Next state value for continuous obseravation vars
+        :return: Next state value for continuous variables
         """
         if len(self.slow_continuous_idx) == 0:  # No HNP calculation needed
             return vtb[tuple(full_obs_index)]
