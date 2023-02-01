@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hnp"
+version = "1.0.3"
+authors = [
+  { name="Marshall Wang", email="marshall.wang@vectorinstitute.ai" },
+  { name="Thomas Jiralerspong", email="thomasjiralerspong@gmail.com" },
+  { name="John Willes", email="john.willes@vectorinstitute.ai" },
+]
+description = "Hyperspace Neighbour Penetration package"
+readme = "README.rst"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/VectorInstitute/MBRL-HVAC-Energy-Optimization"
+"Bug Tracker" = "https://github.com/VectorInstitute/MBRL-HVAC-Energy-Optimization/issues"

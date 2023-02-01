@@ -1,0 +1,33 @@
+agent:
+  # script to run inside experiment container
+  origin: ./train_beobench.py
+  # configuration that can be accessed by script above
+  config:
+    num_episodes: 1460
+    horizon: 24
+    gamma: 0.99
+    num_tiles: 20
+    initial_epsilon: 1
+    epsilon_annealing: 0.999
+    learning_rate: 0.1
+    learning_rate_annealing: 0.999
+env:
+  # gym framework from which we want use an environment
+  gym: ./beobench_env
+  # gym-specific environment configuration
+  config:
+    # sinergym environment name
+    name: Eplus-5Zone-hot-discrete-v1
+    # whether to normalise observations
+    normalize: True
+    # The observation variables to use for training, offset by 4 to account for time vars 
+    obs_to_keep: [4, 5, 13]
+    # The type of each observation variable: 
+    #   0 - slowly-changing continuous var
+    #   1 - fast-changing continuous var
+    #   2 - discrete var
+    mask: [0, 0, 0]
+wrappers: [] # no wrappers added for this example
+general:
+  # save experiment data to ``./beobench_results`` directory
+  local_dir: ./beobench_results
