@@ -316,7 +316,7 @@ config = {
     "normalize": True
 }
 
-exp_name = f"{config['agent']}_{config['env_name']}_{datetime.now():%Y-%m-%d %H:%M:%S}"
+exp_name = f"{'HNP' if args.hnp else ''}_{config['agent']}_{config['env_name']}_{datetime.now():%Y-%m-%d %H:%M:%S}"
 
 if args.wandb:
     # Wandb configuration
