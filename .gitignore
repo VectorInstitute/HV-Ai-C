@@ -39,3 +39,11 @@ Eplus-*
 _build/
 _static/
 _templates/
+
+# VSCode files
+.vscode
+
+# Wandb log files
+wandb/
+
+runs
