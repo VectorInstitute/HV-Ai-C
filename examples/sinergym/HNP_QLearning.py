@@ -294,7 +294,7 @@ class QLearningAgent:
 
 parser = argparse.ArgumentParser(prog="HNP_QLearning")
 
-parser.add_argument("-n", "--num_epsidoes", type=int, default=10)
+parser.add_argument("-n", "--num_episodes", type=int, default=10)
 parser.add_argument("--hnp", action="store_true", default=True)
 parser.add_argument("--wandb", action="store_true", default=False)
 
