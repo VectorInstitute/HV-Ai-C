@@ -15,11 +15,11 @@ Reinforcement Learning with Hyperspace Neighbour Penetration for Energy Efficien
         :target: https://opensource.org/licenses/BSD-3-Clause
         :alt: License
 
-Data center temperature control is a critical process for maintaining high quality of service. While maintaining temperatures in appropriate temperature bands is paramount, it is also important to consider that every heating or cooling strategy has associated environmental and economic costs. For example, a cooling strategy that makes excessive or unnecessary use of air conditioning will consume more energy than a strategy that better leverages free cooling. As long as operational constraints are satisfied, opportunities to discover temperature control solutions that minimize energy utilization are highly valuable. This repository provides a solution for training a reinforcement learning (RL) agent to perform temperature control in a room. Click `here <https://hnp.readthedocs.io>`__ for detailed documentation.
+Data center temperature control is a critical process for maintaining high quality of service. While maintaining temperatures in appropriate temperature bands is paramount, it is also important to consider that every heating or cooling strategy has associated environmental and economic costs. For example, a cooling strategy that makes excessive or unnecessary use of air conditioning will consume more energy than a strategy that better leverages free cooling. As long as operational constraints are satisfied, opportunities to discover temperature control solutions that minimize energy utilization are highly valuable. Co-developed by the **Vector Institute** and **TELUS**, this repository provides a solution for training a reinforcement learning (RL) agent to perform temperature control in a room. Click `here <https://hnp.readthedocs.io>`__ for detailed documentation.
 
 Features
 ========
-- **Innovative discretization method**: The provided solution leverages an innovation in state space design called **Hyperspace Neighbour Penetration** (HNP), which allows slowly-changing continuous variables to be approximated as discrete variables.
+- **Innovative discretization method**: The provided solution leverages an innovation in state space design proposed by TELUS called **Hyperspace Neighbour Penetration** (HNP), which allows slowly-changing continuous variables to be approximated as discrete variables.
 - **Support for building control environments**: The HNP package has built-in support for Sinergym - a building control simulation environment, as well as Beobench - a toolkit providing unified access to building control environments.
 - **Ready-to-use RL agents**: A HNP-enabled Q-Learning agent and two baseline agents are provided in the package.
 
