@@ -1,10 +1,7 @@
-"""
-This file includes all agent classes
-"""
-
 import gym
 from sinergym.utils.rewards import *
 import logging
+import argparse
 
 import numpy as np
 from sinergym.envs import EplusEnv
@@ -107,7 +104,7 @@ class QLearningAgent:
         env: EplusEnv,
         config: dict,
         obs_mask: np.ndarray,
-        use_hnp: bool = True
+        use_hnp: bool = True,
     ) -> None:
         """
         Constructor for Q-Learning agent
@@ -270,7 +267,8 @@ class QLearningAgent:
                 timesteps += 1
                 prev_vtb_index = next_vtb_index
 
-                wandb.log({"rollout/timestep_rew": rew})
+                if wandb.run:
+                    wandb.log({"rollout/timestep_rew": rew})
 
                 if done:
                     episodes_reward.append(episode_reward)
@@ -286,20 +284,29 @@ class QLearningAgent:
                     mean_episodes_return = np.mean(episodes_reward)
                     mean_episodes_timesteps = np.mean(episodes_timesteps)
                     # Logging at the end of each episode
-                    wandb.log({"rollout/ep_rew": episode_reward,
-                               "rollout/ep_rew_mean": mean_episodes_return, "rollout/ep_len_mean": mean_episodes_timesteps, "rollout/exploration_rate": self.epsilon, "train/learning_rate": self.learning_rate})
+                    if wandb.run:
+                        wandb.log({"rollout/ep_rew": episode_reward,
+                                   "rollout/ep_rew_mean": mean_episodes_return, "rollout/ep_len_mean": mean_episodes_timesteps, "rollout/exploration_rate": self.epsilon, "train/learning_rate": self.learning_rate})
                     logger.info(
                         f"------------------------\nepisode: {ep_n}\nepisode_return: {episode_reward}\nepisode_timesteps: {timesteps}\naverage_episodes_return: {mean_episodes_return}\naverage_episodes_timesteps: {mean_episodes_timesteps}\ntotal_timesteps: {total_timesteps}\n-------------------------")
                     break
 
 
+parser = argparse.ArgumentParser(prog="HNP_QLearning")
+
+parser.add_argument("-n", "--num_epsidoes", type=int, default=10)
+parser.add_argument("--hnp", action="store_true", default=True)
+parser.add_argument("--wandb", action="store_true", default=False)
+
+args = parser.parse_args()
+
 config = {
     "env_name": "Eplus-5Zone-hot-discrete-v1",
     "learning_rate": 0.1,
-    "num_episodes": 10,
+    "num_episodes": args.num_episodes,
     "initial_epsilon": 0.999,
     "gamma": 0.99,
-    "use_hnp": True,
+    "use_hnp": args.hnp,
     "agent": "HNP-QLearning",
     "reward_type": LinearReward,
     "lr_annealing": 1,
@@ -308,10 +315,13 @@ config = {
     "filter_obs": [4, 5, 13],
     "normalize": True
 }
+
 exp_name = f"{config['agent']}_{config['env_name']}_{datetime.now():%Y-%m-%d %H:%M:%S}"
-# Wandb configuration
-wandb_run = wandb.init(name=exp_name, project="hnp", entity="vector-institute-aieng",
-                       config=config)
+
+if args.wandb:
+    # Wandb configuration
+    wandb_run = wandb.init(name=exp_name, project="hnp", entity="vector-institute-aieng",
+                           config=config)
 
 env = create_env(config)
 env = FilterObservation(env, np.array(config['filter_obs']))
@@ -320,5 +330,7 @@ agent = QLearningAgent(env, config, np.array([0, 0, 0]), True)
 
 agent.train()
 
-wandb_run.finish()
+if wandb.run:
+    wandb_run.finish()
+
 env.close()
