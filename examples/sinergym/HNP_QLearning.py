@@ -268,7 +268,7 @@ class QLearningAgent:
                 prev_vtb_index = next_vtb_index
 
                 if wandb.run:
-                    wandb.log({"rollout/timestep_rew": rew})
+                    wandb.log({"rollout/rew_timestep": rew})
 
                 if done:
                     episodes_reward.append(episode_reward)
@@ -285,8 +285,8 @@ class QLearningAgent:
                     mean_episodes_timesteps = np.mean(episodes_timesteps)
                     # Logging at the end of each episode
                     if wandb.run:
-                        wandb.log({"rollout/ep_rew": episode_reward,
-                                   "rollout/ep_rew_mean": mean_episodes_return, "rollout/ep_len_mean": mean_episodes_timesteps, "rollout/exploration_rate": self.epsilon, "train/learning_rate": self.learning_rate})
+                        wandb.log({"rollout/ep_return": episode_reward, "rollout/ep_rew_mean(timestep)": episode_reward / timesteps, "rollout/ep_rew_mean": mean_episodes_return,
+                                  "rollout/ep_len_mean": mean_episodes_timesteps, "rollout/exploration_rate": self.epsilon, "train/learning_rate": self.learning_rate})
                     logger.info(
                         f"------------------------\nepisode: {ep_n}\nepisode_return: {episode_reward}\nepisode_timesteps: {timesteps}\naverage_episodes_return: {mean_episodes_return}\naverage_episodes_timesteps: {mean_episodes_timesteps}\ntotal_timesteps: {total_timesteps}\n-------------------------")
                     break
