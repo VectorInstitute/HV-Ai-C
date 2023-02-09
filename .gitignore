@@ -28,6 +28,9 @@ models/
 # MacOS files
 .DS_Store
 
+# VS Code files
+.vscode
+
 # Energy plus files
 Eplus-*
 

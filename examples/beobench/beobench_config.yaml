@@ -21,12 +21,12 @@ env:
     # whether to normalise observations
     normalize: True
     # The observation variables to use for training, offset by 4 to account for time vars 
-    obs_to_keep: [4, 5, 13]
+    obs_to_keep: [4, 5, 12, 14]
     # The type of each observation variable: 
     #   0 - slowly-changing continuous var
     #   1 - fast-changing continuous var
     #   2 - discrete var
-    mask: [0, 0, 0]
+    mask: [0, 0, 0, 0]
 wrappers: [] # no wrappers added for this example
 general:
   # save experiment data to ``./beobench_results`` directory
