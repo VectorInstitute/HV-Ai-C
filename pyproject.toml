@@ -21,7 +21,7 @@ classifiers = [
 dependencies = [
   "numpy",
   "gym<0.25.0",
-  "sinergym=2.2.0"
+  "sinergym==2.2.0"
 ]
 
 [project.urls]
