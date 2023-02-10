@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "hnp"
-version = "1.0.3"
+version = "1.0.4"
 authors = [
   { name="Marshall Wang", email="marshall.wang@vectorinstitute.ai" },
   { name="Thomas Jiralerspong", email="thomasjiralerspong@gmail.com" },
@@ -17,6 +17,11 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
+]
+dependencies = [
+  "numpy",
+  "gym<0.25.0",
+  "sinergym==2.2.0"
 ]
 
 [project.urls]
