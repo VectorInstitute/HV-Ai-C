@@ -13,7 +13,8 @@ HNP uses dictionary to parse agent and environment configuration. You can use an
         horizon: 24
         # Discount factor
         gamma: 0.99
-        # Number of tiles for tile coding
+        # Number of tiles for tile coding. Use a integer for the same number of tiles across all continuous variables. 
+        # Use a list for distinct number of tiles for different continuous variables, each number in the list must match the order in obs_to_keep
         num_tiles: 20
         # Initial value for Epsilon
         initial_epsilon: 1
@@ -31,11 +32,11 @@ HNP uses dictionary to parse agent and environment configuration. You can use an
         name: Eplus-5Zone-hot-discrete-v1
         # Whether to normalise observations
         normalize: True
-        # The observation variables to use for training, offset by 4 to account for time variables 
-        obs_to_keep: [4, 5, 13]
+        # The observation variables to use for training. Use a empty list if you want to use all observation variables
+        obs_to_keep: [1, 2, 8, 10]
         # The type of each observation variable: 
         #   0 - slowly-changing continuous variable
         #   1 - fast-changing continuous variable
         #   2 - discrete variable
-        mask: [0, 0, 0]
+        mask: [0, 0, 0, 0]
 
