@@ -173,7 +173,6 @@ class QLearningAgent(Agent):
         self.epsilon_annealing = config["epsilon_annealing"]
         self.learning_rate = config["learning_rate"]
         self.learning_rate_annealing = config["learning_rate_annealing"]
-        self.n_tiles = config["num_tiles"]
         self.use_hnp = use_hnp
 
         # Indices of continuous vars
@@ -182,6 +181,11 @@ class QLearningAgent(Agent):
         self.discrete_idx = np.where(obs_mask == 2)[0]
         # Reorganized indices of vars: continuous, discrete
         self.permutation_idx = np.hstack((self.continuous_idx, self.discrete_idx))
+
+        if type(config["num_tiles"]) is list:
+            self.n_tiles = np.array(config["num_tiles"])
+        else:
+            self.n_tiles = np.full(self.continuous_idx.shape, config["num_tiles"])
 
         # The lower and upper bounds for continuous vars
         self.cont_low = np.zeros(len(self.continuous_idx))
@@ -210,7 +214,7 @@ class QLearningAgent(Agent):
         """
         tile_size = 1 / self.n_tiles
         tile_coded_space = [
-            np.arange(0, 1 + tile_size, tile_size) for _ in self.continuous_idx
+            np.arange(0, 1 + tile_size[i], tile_size[i]) for i in self.continuous_idx
         ]
 
         return tuple(
