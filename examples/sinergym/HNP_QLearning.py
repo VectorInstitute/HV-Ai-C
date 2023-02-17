@@ -268,7 +268,8 @@ class QLearningAgent:
                 prev_vtb_index = next_vtb_index
 
                 if wandb.run:
-                    wandb.log({"rollout/rew_timestep": rew})
+                    wandb.log({"rew_timestep": rew, "timestep": timesteps,
+                              "episode": ep_n, "total_timesteps": total_timesteps})
 
                 if done:
                     episodes_reward.append(episode_reward)
@@ -307,7 +308,7 @@ config = {
     "initial_epsilon": 0.999,
     "gamma": 0.99,
     "use_hnp": args.hnp,
-    "agent": "HNP-QLearning",
+    "agent": "QLearning",
     "reward_type": LinearReward,
     "lr_annealing": 1,
     "epsilon_annealing": 1,
