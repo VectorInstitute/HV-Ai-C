@@ -1,11 +1,16 @@
-import gym
-from sinergym.utils.rewards import *
+import datetime
 import logging
-import argparse
-
+import gym
+import yaml
 import numpy as np
-from sinergym.envs import EplusEnv
+from pathlib import Path
+import sys
 import wandb
+from stable_baselines3.common.vec_env import DummyVecEnv
+from stable_baselines3.common.monitor import Monitor
+from stable_baselines3.common.callbacks import BaseCallback
+from stable_baselines3 import DQN
+from wandb.integration.sb3 import WandbCallback
 from sinergym.utils.wrappers import NormalizeObservation, MultiObsWrapper
 from sinergym.utils.constants import (
     RANGES_5ZONE,
@@ -15,83 +20,18 @@ from sinergym.utils.constants import (
     RANGES_OFFICEGRID,
     RANGES_SHOP
 )
-
+from sinergym.utils.rewards import *
+from sinergym.envs import EplusEnv
 from hnp.hnp import HNP
 
-
-class FilterObservation(gym.ObservationWrapper):
-    """
-    Sinergym environment wrapper to modify observations
-    """
-
-    def __init__(self, env, obs_to_keep):
-        """
-        Constructor for observation wrapper
-
-        :param env: Sinergym environment
-        :param obs_to_keep: Indices of state variables that are used
-
-        :return: None
-        """
-        super().__init__(env)
-        self.env = env
-        self.obs_to_keep = obs_to_keep
-
-    def observation(self, observation):
-        """
-        Remove the unused state variables from observation
-
-        :param observation: Full observation
-
-        :return: Filtered observation
-        """
-        return observation[self.obs_to_keep]
+path_root = Path(__file__).parents[1]
+sys.path.append(str(path_root))
+import envs
 
 
 logging.getLogger().addHandler(logging.StreamHandler())
 logger = logging.getLogger()
 logger.setLevel("INFO")
-
-
-def create_env(env_config: dict = None) -> gym.Env:
-    """
-    Create sinergym environment
-
-    :param env_config: Configuration kwargs for sinergym. Currently, there is only a single key
-     in this dictionary, "name". This sets the name of the environment.
-
-    :return: A configured gym environment.
-    """
-
-    if not env_config:
-        env_config = {"env_name": "Eplus-5Zone-hot-discrete-v1"}
-
-    env = gym.make(env_config["env_name"], reward=config["reward_type"])
-
-    # Taken from https://github.com/ugr-sail/sinergym/blob/main/scripts/DRL_battery.py
-    if "normalize" in env_config and env_config["normalize"] is True:
-        env_type = env_config["env_name"].split("-")[1]
-        if env_type == "datacenter":
-            ranges = RANGES_DATACENTER
-        elif env_type == "5Zone":
-            ranges = RANGES_5ZONE
-        elif env_type == "warehouse":
-            ranges = RANGES_WAREHOUSE
-        elif env_type == "office":
-            ranges = RANGES_OFFICE
-        elif env_type == "officegrid":
-            ranges = RANGES_OFFICEGRID
-        elif env_type == "shop":
-            ranges = RANGES_SHOP
-        else:
-            raise NameError(
-                f"env_type {env_type} is not valid, check environment name")
-        env = NormalizeObservation(env, ranges=ranges)
-
-    if "multi_observation" in env_config and env_config["multi_observation"] is True:
-        env = MultiObsWrapper(env)
-
-    return env
 
 
 class QLearningAgent:
@@ -129,7 +69,6 @@ class QLearningAgent:
         self.learning_rate_annealing = config["lr_annealing"]
         self.n_tiles = config["num_tiles"]
         self.use_hnp = use_hnp
-        self.reward_type = config["reward_type"]
 
         # Indices of continuous vars
         self.continuous_idx = np.where(obs_mask <= 1)[0]
@@ -293,45 +232,149 @@ class QLearningAgent:
                     break
 
 
-parser = argparse.ArgumentParser(prog="HNP_QLearning")
+class FilterObservation(gym.ObservationWrapper):
+    """
+    Sinergym environment wrapper to modify observations
+    """
 
-parser.add_argument("-n", "--num_episodes", type=int, default=10)
-parser.add_argument("--hnp", action="store_true", default=True)
-parser.add_argument("--wandb", action="store_true", default=False)
+    def __init__(self, env, obs_to_keep):
+        """
+        Constructor for observation wrapper
 
-args = parser.parse_args()
+        :param env: Sinergym environment
+        :param obs_to_keep: Indices of state variables that are used
 
-config = {
-    "env_name": "Eplus-5Zone-hot-discrete-v1",
-    "learning_rate": 0.1,
-    "num_episodes": args.num_episodes,
-    "initial_epsilon": 0.999,
-    "gamma": 0.99,
-    "use_hnp": args.hnp,
-    "agent": "QLearning",
-    "reward_type": LinearReward,
-    "lr_annealing": 1,
-    "epsilon_annealing": 1,
-    "num_tiles": 20,
-    "filter_obs": [4, 5, 13],
-    "normalize": True
-}
+        :return: None
+        """
+        super().__init__(env)
+        self.env = env
+        self.obs_to_keep = obs_to_keep
+        self.observation_space = gym.spaces.Box(
+            low=-5e6, high=5e6, shape=(len(obs_to_keep),), dtype=np.float32)
 
-exp_name = f"{'HNP' if args.hnp else ''}_{config['agent']}_{config['env_name']}_{datetime.now():%Y-%m-%d %H:%M:%S}"
+    def observation(self, observation):
+        """
+        Remove the unused state variables from observation
 
-if args.wandb:
-    # Wandb configuration
-    wandb_run = wandb.init(name=exp_name, project="hnp", entity="vector-institute-aieng",
-                           config=config)
+        :param observation: Full observation
 
-env = create_env(config)
-env = FilterObservation(env, np.array(config['filter_obs']))
+        :return: Filtered observation
+        """
+        return observation[self.obs_to_keep]
 
-agent = QLearningAgent(env, config, np.array([0, 0, 0]), True)
 
-agent.train()
+def create_env(env_config: dict = None) -> gym.Env:
+    """
+    Create sinergym environment
 
-if wandb.run:
-    wandb_run.finish()
+    :param env_config: Configuration kwargs for sinergym. Currently, there is only a single key
+     in this dictionary, "name". This sets the name of the environment.
 
-env.close()
+    :return: A configured gym environment.
+    """
+
+    assert env_config is not None, "environment config cannot be None"
+    reward_type = {"Linear": LinearReward, "Exponential": ExpReward}
+    env = gym.make(env_config["name"],
+                   reward=reward_type[env_config["reward_type"]])
+
+    # Taken from https://github.com/ugr-sail/sinergym/blob/main/scripts/DRL_battery.py
+    if "normalize" in env_config and env_config["normalize"] is True:
+        env_type = env_config["name"].split("-")[1]
+        if env_type == "datacenter":
+            ranges = RANGES_DATACENTER
+        elif env_type == "5Zone":
+            ranges = RANGES_5ZONE
+        elif env_type == "warehouse":
+            ranges = RANGES_WAREHOUSE
+        elif env_type == "office":
+            ranges = RANGES_OFFICE
+        elif env_type == "officegrid":
+            ranges = RANGES_OFFICEGRID
+        elif env_type == "shop":
+            ranges = RANGES_SHOP
+        else:
+            raise NameError(
+                f"env_type {env_type} is not valid, check environment name")
+        env = NormalizeObservation(env, ranges=ranges)
+
+    if "multi_observation" in env_config and env_config["multi_observation"] is True:
+        env = MultiObsWrapper(env)
+
+    return env
+
+
+def main(config_path):
+
+    with open(config_path, "r") as conf_yml:
+        config = yaml.safe_load(conf_yml)
+    experiment_name = f"{config['env']['name']}-{config['agent']['name']}-{'HNP-' if config['agent'].get('hnp') else ''}{config['env']['reward_type']}-{config['agent']['num_episodes']}-{datetime.now():%Y-%m-%d %H:%M:%S}"
+
+    if config["wandb"]:
+        # Wandb configuration
+        wandb_run = wandb.init(name=experiment_name, project="hnp", entity="vector-institute-aieng",
+                               config=config)
+
+    env = create_env(config["env"])
+    if config['env']['obs_to_keep'] is not None:
+        env = FilterObservation(env, config['env']['obs_to_keep'])
+
+    if config["agent"]["name"] == "DQN":
+
+        n_timesteps_episode = env.simulator._eplus_one_epi_len / \
+            env.simulator._eplus_run_stepsize
+
+        vec_env = DummyVecEnv([lambda: Monitor(env)])
+
+        total_timesteps = config["agent"]["num_episodes"] * n_timesteps_episode
+        if wandb.run:
+            model = DQN("MlpPolicy", vec_env, verbose=1,
+                        tensorboard_log=f"runs/{wandb_run.id}", learning_rate=config["agent"]["learning_rate"], exploration_final_eps=config['agent']['exploration_final_eps'], exploration_fraction=config["agent"]["exploration_fraction"], gamma=config["agent"]["gamma"])
+            model.learn(total_timesteps=total_timesteps, callback=WandbCallback(
+                gradient_save_freq=100, model_save_path=f"{config['model_output_dir']}/{wandb_run.id}", verbose=2), log_interval=config['agent']['log_interval'], progress_bar=True)
+        else:
+            model = DQN("MlpPolicy", vec_env, verbose=1,
+                        learning_rate=config["agent"]["learning_rate"], exploration_final_eps=config['agent']['exploration_final_eps'], exploration_fraction=config["agent"]["exploration_fraction"], gamma=config["agent"]["gamma"])
+            model.learn(total_timesteps=total_timesteps,
+                        log_interval=config['agent']['log_interval'], progress_bar=True)
+
+    elif config["agent"]["name"] == "QLearning":
+        model = QLearningAgent(
+            env, config["agent"], np.array(config["env"]["mask"]), config["agent"]["hnp"])
+        model.train()
+    elif config["agent"]["name"] == "FixedAction":
+        for i in range(config["agent"]["num_episodes"]):
+            episode_reward = 0
+            env.reset()
+            while True:
+                _, reward, done, _ = env.step(
+                    config["agent"]["fixed_action_idx"])
+                episode_reward += reward
+                if done:
+                    if i % config["log_interval"] == 0:
+                        if wandb.run:
+                            wandb.log(
+                                {"episodic_return": episode_reward}, step=i)
+                    break
+    elif config["agent"]["name"] == "RandomAgent":
+        for i in range(config["agent"]["num_episodes"]):
+            episode_reward = 0
+            env.reset()
+            while True:
+                action = env.action_space.sample()
+                _, reward, done, _ = env.step(action)
+                episode_reward += reward
+                if done:
+                    if i % config["log_interval"] == 0:
+                        if wandb.run:
+                            wandb.log(
+                                {"episodic_return": episode_reward}, step=i)
+                    break
+
+    env.close()
+    if wandb.run:
+        wandb.finish()
+
+
+if __name__ == "__main__":
+    main(sys.argv[1])
