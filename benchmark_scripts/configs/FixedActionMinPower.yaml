@@ -1,12 +1,13 @@
-model_ouput_dir: "./result_models"
-log_interval: 1
-wandb: False
+model_output_dir: "./result_models"
+wandb: True
 agent:
-  name: "FixedAction"
+  name: "FixedAction_MinPower"
   # Number of episodes 
-  num_episodes: 100
+  num_episodes: 5
   # Fixed Action Index
   fixed_action_idx: 0
+  # Number of episodes before logging
+  log_interval: 1
     
 env:
   # Sinergym environment name

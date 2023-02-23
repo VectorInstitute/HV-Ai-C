@@ -1,10 +1,9 @@
-model_ouput_dir: "./result_models"
-log_interval: 1
-wandb: False
+model_output_dir: "./result_models"
+wandb: True
 agent:
   name: "QLearning"
   # Number of episodes 
-  num_episodes: 100
+  num_episodes: 5
   # Discount factor
   gamma: 0.99
   # Number of tiles for tile coding
@@ -19,6 +18,8 @@ agent:
   lr_annealing: 0.999
   # Use HNP
   hnp: False
+  # Number of episodes before logging
+  log_interval: 1
     
 env:
   # Sinergym environment name

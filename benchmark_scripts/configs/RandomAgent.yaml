@@ -1,17 +1,9 @@
-model_output_dir: "./result_models/"
+model_output_dir: "./result_models"
 wandb: True
 agent:
-  name: "DQN"
+  name: "RandomAgent"
   # Number of episodes 
   num_episodes: 5
-  # Discount factor
-  gamma: 0.99
-  # Initial value for Epsilon
-  exploration_fraction: 0.12
-  # Annealing rate for Epsilon
-  exploration_final_eps: 0.1
-  # Initial learning rate
-  learning_rate: !!float 1e-4
   # Number of episodes before logging
   log_interval: 1
     
