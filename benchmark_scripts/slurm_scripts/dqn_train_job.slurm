@@ -1,6 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=DQN_Train
 
+#SBATCH --partition=cpu
+
 #SBATCH --cpus-per-task=4
 
 #SBATCH --mem-per-cpu=32G
