@@ -3,7 +3,7 @@ wandb: True
 agent:
   name: "DQN"
   # Number of episodes 
-  num_episodes: 5
+  num_episodes: 100
   # Discount factor
   gamma: 0.99
   # Initial value for Epsilon
