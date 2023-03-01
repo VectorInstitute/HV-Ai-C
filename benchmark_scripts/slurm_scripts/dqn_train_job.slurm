@@ -3,7 +3,7 @@
 
 #SBATCH --cpus-per-task=4
 
-#SBATCH --mem-per-cpu=64G
+#SBATCH --mem-per-cpu=32G
 
 #SBATCH --output=slurm-%j.out
 
