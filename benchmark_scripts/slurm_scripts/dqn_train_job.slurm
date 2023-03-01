@@ -7,9 +7,9 @@
 
 #SBATCH --mem-per-cpu=32G
 
-#SBATCH --output=slurm-%j.out
+#SBATCH --output=slurm-%x.out
 
-#SBATCH --error=slurm-%j.err
+#SBATCH --error=slurm-%x.err
 
 # prepare your environment here
 export PATH=/pkgs/anaconda3/bin/conda:$PATH
