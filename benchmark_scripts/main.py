@@ -11,7 +11,6 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3 import DQN
-from wandb.integration.sb3 import WandbCallback
 from sinergym.utils.wrappers import NormalizeObservation, MultiObsWrapper
 from sinergym.utils.constants import (
     RANGES_5ZONE,
@@ -33,6 +32,18 @@ import envs
 logging.getLogger().addHandler(logging.StreamHandler())
 logger = logging.getLogger()
 logger.setLevel("INFO")
+
+
+class LogEpisodeReturnCallback(BaseCallback):
+    def __init__(self, verbose=0):
+        super().__init__(verbose)
+
+    def _on_step(self) -> bool:
+        for i, done in enumerate(self.locals["dones"]):
+            if done:
+                self.logger.record("rollout/ep_return",
+                                   self.locals['env'].envs[i].episode_returns[-1])
+        return True
 
 
 class QLearningAgent:
@@ -217,8 +228,6 @@ class QLearningAgent:
                     self.epsilon = self.epsilon * self.epsilon_annealing
                     self.learning_rate = self.learning_rate * self.learning_rate_annealing
 
-                    ep_n += 1
-
                     # Logging at log_interval
                     if ep_n % self.config["log_interval"] == 0:
                         episodes_return_mean = np.mean(episodes_return)
@@ -226,10 +235,11 @@ class QLearningAgent:
                         time_elapsed = max(
                             (time.time_ns() - start_time) / 1e9, sys.float_info.epsilon)
                         if wandb.run:
-                            wandb.log({"rollout/ep_rew_mean": episodes_return_mean, "rollout/ep_len_mean": episodes_timesteps_mean,
+                            wandb.log({"rollout/ep_rew_mean": episodes_return_mean, "rollout/ep_len_mean": episodes_timesteps_mean, "rollout/ep_return": episode_reward,
                                       "rollout/exploration_rate": self.epsilon, "train/learning_rate": self.learning_rate, "time/total_timesteps": total_timesteps, "time/time_elapsed": time_elapsed})
                         logger.info(
                             f"------------------------\nepisode: {ep_n}\nepisode_return: {episode_reward}\nepisode_timesteps: {timesteps}\naverage_episodes_return: {episodes_return_mean}\naverage_episodes_timesteps: {episodes_timesteps_mean}\ntotal_timesteps: {total_timesteps}\n-------------------------")
+                    ep_n += 1
                     break
 
 
@@ -334,7 +344,7 @@ def main(config_path):
         model = DQN("MlpPolicy", vec_env, verbose=2,
                     tensorboard_log=tensorboard_log_dir, learning_rate=config["agent"]["learning_rate"], exploration_final_eps=config['agent']['exploration_final_eps'], exploration_fraction=config["agent"]["exploration_fraction"], gamma=config["agent"]["gamma"])
         model.learn(total_timesteps=total_timesteps,
-                    log_interval=config['agent']['log_interval'], progress_bar=True)
+                    log_interval=config['agent']['log_interval'], progress_bar=True, callback=LogEpisodeReturnCallback())
 
     elif config["agent"]["name"] == "QLearning":
         model = QLearningAgent(
