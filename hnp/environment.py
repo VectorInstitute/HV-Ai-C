@@ -3,6 +3,7 @@ This file includes all environment related class and methods
 """
 
 import gym
+import numpy as np
 
 from sinergym.utils.wrappers import NormalizeObservation, MultiObsWrapper
 from sinergym.utils.constants import (
@@ -31,7 +32,10 @@ class ObservationWrapper(gym.ObservationWrapper):
         """
         super().__init__(env)
         self.env = env
-        self.obs_to_keep = obs_to_keep
+        if not obs_to_keep.any():
+            self.obs_to_keep = np.arange(4, env.observation_space.shape[0])
+        else:
+            self.obs_to_keep = np.add(np.array(obs_to_keep), 4)
 
     def observation(self, observation):
         """
