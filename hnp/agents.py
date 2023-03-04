@@ -344,3 +344,24 @@ class QLearningAgent(Agent):
                 self.learning_rate = self.learning_rate * self.learning_rate_annealing
             if done:
                 obs = self.env.reset()
+    
+    def save_results(self) -> None:
+        """
+        Saves training result and learned Q table
+        """
+
+        today = date.today()
+        day = today.strftime("%Y_%b_%d")
+        now = datetime.now()
+        time = now.strftime("%H_%M_%S")
+        base_dir = "root" if self.use_beobench else os.getcwd()
+        dir_name = f"/{base_dir}/{self.results_dir}/{day}/results_{time}"
+        os.makedirs(dir_name)
+
+        logging.info("Saving results...")
+
+        np.savez(
+            f"{dir_name}/results.npz", 
+             qtb=self.qtb, 
+             rewards=self.rewards,
+        )
