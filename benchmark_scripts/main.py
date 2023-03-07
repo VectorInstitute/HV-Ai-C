@@ -8,6 +8,7 @@ from pathlib import Path
 import sys
 import wandb
 from stable_baselines3.common.vec_env import DummyVecEnv
+from stable_baselines3.common.utils import get_linear_fn
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3 import DQN
@@ -55,6 +56,7 @@ class QLearningAgent:
         self,
         env: EplusEnv,
         config: dict,
+        totaltimesteps: int,
         obs_mask: np.ndarray,
         use_hnp: bool = True,
     ) -> None:
@@ -81,6 +83,10 @@ class QLearningAgent:
         self.learning_rate_annealing = config["lr_annealing"]
         self.n_tiles = config["num_tiles"]
         self.use_hnp = use_hnp
+        self.totaltimesteps = totaltimesteps
+        self._current_progress_remaining = 1
+        self.exploration_schedule = get_linear_fn(
+            config["initial_epsilon"], config["exploration_final_eps"], config["exploration_fraction"])
 
         # Indices of continuous vars
         self.continuous_idx = np.where(obs_mask <= 1)[0]
@@ -219,13 +225,18 @@ class QLearningAgent:
                 timesteps += 1
                 prev_vtb_index = next_vtb_index
 
+                self._current_progress_remaining = 1.0 - \
+                    float(total_timesteps) / float(self.totaltimesteps)
+                self.epsilon = self.exploration_schedule(
+                    self._current_progress_remaining)
+
                 if done:
                     episodes_return.append(episode_reward)
                     episodes_timesteps.append(timesteps)
                     obs = self.env.reset()
 
                     # Annealing
-                    self.epsilon = self.epsilon * self.epsilon_annealing
+                    # self.epsilon = self.epsilon * self.epsilon_annealing
                     self.learning_rate = self.learning_rate * self.learning_rate_annealing
 
                     # Logging at log_interval
@@ -333,14 +344,13 @@ def main(config_path):
     if config['env']['obs_to_keep'] is not None:
         env = FilterObservation(env, config['env']['obs_to_keep'])
 
+    n_timesteps_episode = env.simulator._eplus_one_epi_len / \
+        env.simulator._eplus_run_stepsize
+    total_timesteps = config["agent"]["num_episodes"] * n_timesteps_episode
+
     if config["agent"]["name"] == "DQN":
-
-        n_timesteps_episode = env.simulator._eplus_one_epi_len / \
-            env.simulator._eplus_run_stepsize
-
         vec_env = DummyVecEnv([lambda: Monitor(env)])
 
-        total_timesteps = config["agent"]["num_episodes"] * n_timesteps_episode
         model = DQN("MlpPolicy", vec_env, verbose=2,
                     tensorboard_log=tensorboard_log_dir, learning_rate=config["agent"]["learning_rate"], exploration_final_eps=config['agent']['exploration_final_eps'], exploration_fraction=config["agent"]["exploration_fraction"], gamma=config["agent"]["gamma"])
         model.learn(total_timesteps=total_timesteps,
@@ -348,7 +358,7 @@ def main(config_path):
 
     elif config["agent"]["name"] == "QLearning":
         model = QLearningAgent(
-            env, config["agent"], np.array(config["env"]["mask"]), config["agent"]["hnp"])
+            env, config["agent"], total_timesteps, np.array(config["env"]["mask"]), config["agent"]["hnp"])
         model.train()
     elif config["agent"]["name"].split('_')[0] == "FixedAction":
         start_time = time.time_ns()

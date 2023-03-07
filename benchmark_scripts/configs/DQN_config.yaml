@@ -3,13 +3,13 @@ wandb: True
 agent:
   name: "DQN"
   # Number of episodes 
-  num_episodes: 100
+  num_episodes: 5
   # Discount factor
   gamma: 0.99
-  # Initial value for Epsilon
-  exploration_fraction: 0.12
   # Annealing rate for Epsilon
-  exploration_final_eps: 0.1
+  exploration_fraction: 0.012
+  # Epsilon final value
+  exploration_final_eps: 0.01
   # Initial learning rate
   learning_rate: !!float 1e-4
   # Number of episodes before logging
@@ -23,4 +23,4 @@ env:
   # Whether to normalise observations
   normalize: True
   # The observation variables to use for training, offset by 4 to account for time vars 
-  obs_to_keep: [4, 5, 13]
+  obs_to_keep: [4, 5, 12, 14]
