@@ -1,5 +1,8 @@
 import datetime
+import argparse
 import logging
+from os import path
+import os
 import time
 import gym
 import yaml
@@ -245,11 +248,11 @@ class QLearningAgent:
                         episodes_timesteps_mean = np.mean(episodes_timesteps)
                         time_elapsed = max(
                             (time.time_ns() - start_time) / 1e9, sys.float_info.epsilon)
-                        if wandb.run:
-                            wandb.log({"rollout/ep_rew_mean": episodes_return_mean, "rollout/ep_len_mean": episodes_timesteps_mean, "rollout/ep_return": episode_reward,
-                                      "rollout/exploration_rate": self.epsilon, "train/learning_rate": self.learning_rate, "time/total_timesteps": total_timesteps, "time/time_elapsed": time_elapsed})
-                        logger.info(
-                            f"------------------------\nepisode: {ep_n}\nepisode_return: {episode_reward}\nepisode_timesteps: {timesteps}\naverage_episodes_return: {episodes_return_mean}\naverage_episodes_timesteps: {episodes_timesteps_mean}\ntotal_timesteps: {total_timesteps}\n-------------------------")
+                    if wandb.run:
+                        wandb.log({"rollout/ep_rew_mean": episodes_return_mean, "rollout/ep_len_mean": episodes_timesteps_mean, "rollout/ep_return": episode_reward,
+                                   "rollout/exploration_rate": self.epsilon, "train/learning_rate": self.learning_rate, "time/total_timesteps": total_timesteps, "time/time_elapsed": time_elapsed})
+                    logger.info(
+                        f"------------------------\nepisode: {ep_n}\nepisode_return: {episode_reward}\nepisode_timesteps: {timesteps}\naverage_episodes_return: {episodes_return_mean}\naverage_episodes_timesteps: {episodes_timesteps_mean}\ntotal_timesteps: {total_timesteps}\n-------------------------")
                     ep_n += 1
                     break
 
@@ -326,109 +329,131 @@ def create_env(env_config: dict = None) -> gym.Env:
     return env
 
 
-def main(config_path):
+parser = argparse.ArgumentParser(prog="RL-HVAC-Control-Benchmark")
 
-    with open(config_path, "r") as conf_yml:
-        config = yaml.safe_load(conf_yml)
-    experiment_name = f"{config['env']['name']}-{config['agent']['name']}-{'HNP-' if config['agent'].get('hnp') else ''}{config['env']['reward_type']}-{config['agent']['num_episodes']}-{datetime.now():%Y-%m-%d %H:%M:%S}"
+parser.add_argument("--env", type=str, default="Eplus-5Zone-hot-discrete-train-v1",
+                    choices=["Eplus-5Zone-hot-discrete-train-v1", "Eplus-5Zone-hot-discrete-test-v1"], help="Environment name")
+parser.add_argument("--algo", type=str, default="QLearning",
+                    choices=["HNP_QLearning", "QLearning", "DQN", "FixedActionMinPower", "FixedActionMaxComfort", "RandomAgent"], help="The RL Agent")
+parser.add_argument("--env-config", type=str,
+                    default="configs/environments.yaml", help="Environment config file")
+parser.add_argument("--agent-config", type=str,
+                    default="configs/agents.yaml", help="Agent config file")
+args = parser.parse_args()
 
-    if config["wandb"]:
-        # Wandb configuration
-        wandb_run = wandb.init(name=experiment_name, project="hnp", entity="vector-institute-aieng",
-                               config=config, sync_tensorboard=True)
+if args.env_config.startswith("/"):
+    env_config_path = args.env_config
+else:
+    env_config_path = path.join(path.dirname(__file__), args.env_config)
 
-    tensorboard_log_dir = f"runs/{wandb_run.id}/" + \
-        experiment_name if wandb.run else "./tensorboard_log/" + experiment_name
+with open(env_config_path, "r") as env_config_file:
+    env_config = yaml.safe_load(env_config_file)
 
-    env = create_env(config["env"])
-    if config['env']['obs_to_keep'] is not None:
-        env = FilterObservation(env, config['env']['obs_to_keep'])
+if args.agent_config.startswith("/"):
+    agent_config_path = args.agent_config
+else:
+    agent_config_path = path.join(path.dirname(__file__), args.agent_config)
+with open(agent_config_path, "r") as agent_config_file:
+    agent_config = yaml.safe_load(agent_config_file)
 
-    n_timesteps_episode = env.simulator._eplus_one_epi_len / \
-        env.simulator._eplus_run_stepsize
-    total_timesteps = config["agent"]["num_episodes"] * n_timesteps_episode
+env_config = env_config[args.env]
+agent_config = agent_config[args.algo]
 
-    if config["agent"]["name"] == "DQN":
-        vec_env = DummyVecEnv([lambda: Monitor(env)])
+experiment_name = f"{env_config['name']}-{agent_config['name']}-{'HNP-' if agent_config.get('hnp') else ''}{env_config['reward_type']}-{agent_config['num_episodes']}-{datetime.now():%Y-%m-%d %H:%M:%S}"
 
-        model = DQN("MlpPolicy", vec_env, verbose=2,
-                    tensorboard_log=tensorboard_log_dir, learning_rate=config["agent"]["learning_rate"], exploration_final_eps=config['agent']['exploration_final_eps'], exploration_fraction=config["agent"]["exploration_fraction"], gamma=config["agent"]["gamma"])
-        model.learn(total_timesteps=total_timesteps,
-                    log_interval=config['agent']['log_interval'], progress_bar=True, callback=LogEpisodeReturnCallback())
+if agent_config["wandb"]:
+    # Wandb configuration
+    wandb_run = wandb.init(name=experiment_name, project="hnp", entity="vector-institute-aieng",
+                           config={"env": env_config, "agent": agent_config}, sync_tensorboard=True)
 
-    elif config["agent"]["name"] == "QLearning":
-        model = QLearningAgent(
-            env, config["agent"], total_timesteps, np.array(config["env"]["mask"]), config["agent"]["hnp"])
-        model.train()
-    elif config["agent"]["name"].split('_')[0] == "FixedAction":
-        start_time = time.time_ns()
-        episodes_return = []
-        episodes_timesteps = []
-        total_timesteps = 0
-        for i in range(config["agent"]["num_episodes"]):
-            episode_reward = 0
-            timestep = 0
-            env.reset()
-            while True:
-                _, reward, done, _ = env.step(
-                    config["agent"]["fixed_action_idx"])
-                episode_reward += reward
-                timestep += 1
-                total_timesteps += 1
-                if done:
-                    episodes_return.append(episode_reward)
-                    episodes_timesteps.append(timestep)
-                    if i % config["agent"]["log_interval"] == 0:
-                        time_elapsed = max(
-                            (time.time_ns() - start_time) / 1e9, sys.float_info.epsilon)
-                        episodes_return_mean = np.mean(episodes_return)
-                        episodes_timesteps_mean = np.mean(episodes_timesteps)
-                        if wandb.run:
-                            wandb.log({"rollout/ep_rew_mean": episodes_return_mean,
-                                      "rollout/ep_len_mean": episodes_timesteps_mean, "time/total_timesteps": total_timesteps, "time/time_elapsed": time_elapsed})
-                        logger.info(
-                            f"------------------------\nepisode: {i}\nepisode_return: {episode_reward}\nepisode_timesteps: {timestep}\naverage_episodes_return: {episodes_return_mean}\naverage_episodes_timesteps: {episodes_timesteps_mean}\ntotal_timesteps: {total_timesteps}\n-------------------------")
-                    break
-    elif config["agent"]["name"] == "RandomAgent":
-        start_time = time.time_ns()
-        episodes_return = []
-        episodes_timesteps = []
-        total_timesteps = 0
-        for i in range(config["agent"]["num_episodes"]):
-            episode_reward = 0
-            timestep = 0
-            env.reset()
-            while True:
-                action = env.action_space.sample()
-                _, reward, done, _ = env.step(action)
-                episode_reward += reward
-                total_timesteps += 1
-                timestep += 1
-                if done:
-                    episodes_return.append(episode_reward)
-                    episodes_timesteps.append(timestep)
-                    if i % config["agent"]["log_interval"] == 0:
-                        time_elapsed = max(
-                            (time.time_ns() - start_time) / 1e9, sys.float_info.epsilon)
-                        episodes_return_mean = np.mean(episodes_return)
-                        episodes_timesteps_mean = np.mean(episodes_timesteps)
-                        if wandb.run:
-                            wandb.log({"rollout/ep_rew_mean": episodes_return_mean,
-                                      "rollout/ep_len_mean": episodes_timesteps_mean, "time/total_timesteps": total_timesteps, "time/time_elapsed": time_elapsed})
-                        logger.info(
-                            f"------------------------\nepisode: {i}\nepisode_return: {episode_reward}\nepisode_timesteps: {timestep}\naverage_episodes_return: {episodes_return_mean}\naverage_episodes_timesteps: {episodes_timesteps_mean}\ntotal_timesteps: {total_timesteps}\n-------------------------")
-                    break
+tensorboard_log_dir = f"runs/{wandb_run.id}/" + \
+    experiment_name if wandb.run else "./tensorboard_log/" + experiment_name
 
-    env.close()
-    if config["model_output_dir"]:
-        if config["agent"]["name"] in ["DQN"]:
-            logger.info("Saving the trained model...")
-            model.save(config["model_output_dir"] + experiment_name)
-            logger.info(
-                f"Trained model is saved in {config['model_output_dir'] + experiment_name}")
-    if wandb.run:
-        wandb.finish()
+env = create_env(env_config)
+if env_config['obs_to_keep'] is not None:
+    env = FilterObservation(env, env_config['obs_to_keep'])
 
+n_timesteps_episode = env.simulator._eplus_one_epi_len / \
+    env.simulator._eplus_run_stepsize
+total_timesteps = agent_config["num_episodes"] * n_timesteps_episode
 
-if __name__ == "__main__":
-    main(sys.argv[1])
+if agent_config["name"] == "DQN":
+    vec_env = DummyVecEnv([lambda: Monitor(env)])
+
+    model = DQN("MlpPolicy", vec_env, verbose=2,
+                tensorboard_log=tensorboard_log_dir, learning_rate=agent_config["learning_rate"], exploration_final_eps=agent_config['exploration_final_eps'], exploration_fraction=agent_config["exploration_fraction"], gamma=agent_config["gamma"])
+    model.learn(total_timesteps=total_timesteps,
+                log_interval=agent_config['log_interval'], progress_bar=True, callback=LogEpisodeReturnCallback())
+
+elif agent_config["name"] == "QLearning":
+    model = QLearningAgent(
+        env, agent_config, total_timesteps, np.array(env_config["mask"]), agent_config["hnp"])
+    model.train()
+elif agent_config["name"].split('_')[0] == "FixedAction":
+    start_time = time.time_ns()
+    episodes_return = []
+    episodes_timesteps = []
+    total_timesteps = 0
+    for i in range(agent_config["num_episodes"]):
+        episode_reward = 0
+        timestep = 0
+        env.reset()
+        while True:
+            _, reward, done, _ = env.step(
+                agent_config["fixed_action_idx"])
+            episode_reward += reward
+            timestep += 1
+            total_timesteps += 1
+            if done:
+                episodes_return.append(episode_reward)
+                episodes_timesteps.append(timestep)
+                if i % agent_config["log_interval"] == 0:
+                    time_elapsed = max(
+                        (time.time_ns() - start_time) / 1e9, sys.float_info.epsilon)
+                    episodes_return_mean = np.mean(episodes_return)
+                    episodes_timesteps_mean = np.mean(episodes_timesteps)
+                    if wandb.run:
+                        wandb.log({"rollout/ep_rew_mean": episodes_return_mean, "rollout/ep_return": episode_reward,
+                                   "rollout/ep_len_mean": episodes_timesteps_mean, "time/total_timesteps": total_timesteps, "time/time_elapsed": time_elapsed})
+                    logger.info(
+                        f"------------------------\nepisode: {i}\nepisode_return: {episode_reward}\nepisode_timesteps: {timestep}\naverage_episodes_return: {episodes_return_mean}\naverage_episodes_timesteps: {episodes_timesteps_mean}\ntotal_timesteps: {total_timesteps}\n-------------------------")
+                break
+elif agent_config["name"] == "RandomAgent":
+    start_time = time.time_ns()
+    episodes_return = []
+    episodes_timesteps = []
+    total_timesteps = 0
+    for i in range(agent_config["num_episodes"]):
+        episode_reward = 0
+        timestep = 0
+        env.reset()
+        while True:
+            action = env.action_space.sample()
+            _, reward, done, _ = env.step(action)
+            episode_reward += reward
+            total_timesteps += 1
+            timestep += 1
+            if done:
+                episodes_return.append(episode_reward)
+                episodes_timesteps.append(timestep)
+                if i % agent_config["log_interval"] == 0:
+                    time_elapsed = max(
+                        (time.time_ns() - start_time) / 1e9, sys.float_info.epsilon)
+                    episodes_return_mean = np.mean(episodes_return)
+                    episodes_timesteps_mean = np.mean(episodes_timesteps)
+                    if wandb.run:
+                        wandb.log({"rollout/ep_rew_mean": episodes_return_mean, "rollout/ep_return": episode_reward,
+                                   "rollout/ep_len_mean": episodes_timesteps_mean, "time/total_timesteps": total_timesteps, "time/time_elapsed": time_elapsed})
+                    logger.info(
+                        f"------------------------\nepisode: {i}\nepisode_return: {episode_reward}\nepisode_timesteps: {timestep}\naverage_episodes_return: {episodes_return_mean}\naverage_episodes_timesteps: {episodes_timesteps_mean}\ntotal_timesteps: {total_timesteps}\n-------------------------")
+                break
+
+env.close()
+if agent_config["model_output_dir"]:
+    if agent_config["name"] in ["DQN"]:
+        logger.info("Saving the trained model...")
+        model.save(agent_config["model_output_dir"] + experiment_name)
+        logger.info(
+            f"Trained model is saved in {agent_config['model_output_dir'] + experiment_name}")
+if wandb.run:
+    wandb.finish()

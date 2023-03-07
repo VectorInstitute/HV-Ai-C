@@ -1,0 +1,98 @@
+HNP_QLearning:
+  name: "QLearning"
+  # Number of episodes 
+  num_episodes: 100
+  # Discount factor
+  gamma: 0.99
+  # Number of tiles for tile coding
+  num_tiles: 20
+  # Exploration initial rate
+  initial_epsilon: 1.0
+  # Annealing rate for Epsilon
+  exploration_fraction: 0.12
+  # Epsilon final value
+  exploration_final_eps: 0.1
+  # Initial learning rate
+  learning_rate: !!float 1e-4
+  # Annealing rate for learning rate
+  lr_annealing: 1 
+  # Use HNP
+  hnp: True
+  # Number of episodes before logging
+  log_interval: 1
+  # Trained model output dir
+  model_output_dir: "./result_models"
+  # Wheather log into WandB
+  wandb: True
+QLearning:
+  name: "QLearning"
+  # Number of episodes 
+  num_episodes: 100
+  # Discount factor
+  gamma: 0.99
+  # Number of tiles for tile coding
+  num_tiles: 20
+  # Exploration initial rate
+  initial_epsilon: 1.0
+  # Annealing rate for Epsilon
+  exploration_fraction: 0.12
+  # Epsilon final value
+  exploration_final_eps: 0.1
+  # Initial learning rate
+  learning_rate: !!float 1e-4
+  # Annealing rate for learning rate
+  lr_annealing: 1 
+  # Use HNP
+  hnp: False
+  # Number of episodes before logging
+  log_interval: 1
+  # Trained model output dir
+  model_output_dir: "./result_models"
+  # Wheather log into WandB
+  wandb: True
+DQN:
+  name: "DQN"
+  # Number of episodes 
+  num_episodes: 100
+  # Discount factor
+  gamma: 0.99
+  # Annealing rate for Epsilon
+  exploration_fraction: 0.12
+  # Epsilon final value
+  exploration_final_eps: 0.1
+  # Initial learning rate
+  learning_rate: !!float 1e-4
+  # Number of episodes before logging
+  log_interval: 1
+  # Trained model output dir
+  model_output_dir: "./result_models"
+  # Wheather log into WandB
+  wandb: True
+FixedAction_MaxComfort:
+  name: "FixedAction_MaxComfort"
+  # Number of episodes 
+  num_episodes: 100
+  # Fixed Action Index
+  fixed_action_idx: 9
+  # Number of episodes before logging
+  log_interval: 1
+  # Wheather log into WandB
+  wandb: True
+FixedAction_MinPower:
+  name: "FixedAction_MinPower"
+  # Number of episodes 
+  num_episodes: 100
+  # Fixed Action Index
+  fixed_action_idx: 0
+  # Number of episodes before logging
+  log_interval: 1
+  # Wheather log into WandB
+  wandb: True
+RandomAgent:
+  name: "RandomAgent"
+  # Number of episodes 
+  num_episodes: 100
+  # Number of episodes before logging
+  log_interval: 1
+  # Wheather log into WandB
+  wandb: True

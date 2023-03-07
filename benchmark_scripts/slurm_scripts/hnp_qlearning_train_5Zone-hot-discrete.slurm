@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=QLearning_Train
+#SBATCH --job-name=HNP_QLearning_Train
 
 #SBATCH --partition=cpu
 
@@ -16,4 +16,4 @@ export PATH=/pkgs/anaconda3/bin/conda:$PATH
 source activate $HOME/condaenvs/sinergym
 
 # put your command here
-python $HOME/MBRL-HVAC-Energy-Optimization/benchmark_scripts/main.py $HOME/MBRL-HVAC-Energy-Optimization/benchmark_scripts/configs/QLearning_config.yaml
+python $HOME/MBRL-HVAC-Energy-Optimization/benchmark_scripts/train.py --algo HNP_QLearning --env Eplus-5Zone-hot-discrete-train-v1
