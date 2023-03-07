@@ -3,13 +3,13 @@ wandb: True
 agent:
   name: "DQN"
   # Number of episodes 
-  num_episodes: 5
+  num_episodes: 100
   # Discount factor
   gamma: 0.99
   # Annealing rate for Epsilon
-  exploration_fraction: 0.012
+  exploration_fraction: 0.12
   # Epsilon final value
-  exploration_final_eps: 0.01
+  exploration_final_eps: 0.1
   # Initial learning rate
   learning_rate: !!float 1e-4
   # Number of episodes before logging

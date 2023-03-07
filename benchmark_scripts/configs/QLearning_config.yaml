@@ -3,7 +3,7 @@ wandb: True
 agent:
   name: "QLearning"
   # Number of episodes 
-  num_episodes: 5
+  num_episodes: 100
   # Discount factor
   gamma: 0.99
   # Number of tiles for tile coding
@@ -11,9 +11,9 @@ agent:
   # Exploration initial rate
   initial_epsilon: 1.0
   # Annealing rate for Epsilon
-  exploration_fraction: 0.012
+  exploration_fraction: 0.12
   # Epsilon final value
-  exploration_final_eps: 0.01
+  exploration_final_eps: 0.1
   # Initial value for Epsilon
   epsilon_annealing: 0.999
   # Initial learning rate
