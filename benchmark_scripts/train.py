@@ -12,6 +12,7 @@ import sys
 import wandb
 from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3.common.utils import get_linear_fn
+from stable_baselines3.common.save_util import *
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3 import DQN
@@ -81,7 +82,6 @@ class QLearningAgent:
         self.config = config
         self.gamma = config["gamma"]
         self.epsilon = config["initial_epsilon"]
-        self.epsilon_annealing = config["epsilon_annealing"]
         self.learning_rate = config["learning_rate"]
         self.learning_rate_annealing = config["lr_annealing"]
         self.n_tiles = config["num_tiles"]
@@ -200,8 +200,6 @@ class QLearningAgent:
 
         # n people, outdoor temperature, indoor temperature
         start_time = time.time_ns()
-        obs = self.env.reset()
-        prev_vtb_index, _ = self.get_vtb_idx_from_obs(obs)
         episodes_return = []
         episodes_timesteps = []
         ep_n = 0
@@ -209,6 +207,8 @@ class QLearningAgent:
         while ep_n < self.config["num_episodes"]:
             episode_reward = 0
             timesteps = 0
+            obs = self.env.reset()
+            prev_vtb_index, _ = self.get_vtb_idx_from_obs(obs)
             while True:
                 action = self.choose_action(prev_vtb_index)
                 # Set value table to value of max action at that state
@@ -236,7 +236,6 @@ class QLearningAgent:
                 if done:
                     episodes_return.append(episode_reward)
                     episodes_timesteps.append(timesteps)
-                    obs = self.env.reset()
 
                     # Annealing
                     # self.epsilon = self.epsilon * self.epsilon_annealing
@@ -255,6 +254,48 @@ class QLearningAgent:
                         f"------------------------\nepisode: {ep_n}\nepisode_return: {episode_reward}\nepisode_timesteps: {timesteps}\naverage_episodes_return: {episodes_return_mean}\naverage_episodes_timesteps: {episodes_timesteps_mean}\ntotal_timesteps: {total_timesteps}\n-------------------------")
                     ep_n += 1
                     break
+
+    def save(self, save_path):
+        data = self.__dict__.copy()
+        save_path = open_path(save_path, "w", verbose=0, suffix="zip")
+        # data/params can be None, so do not
+        # try to serialize them blindly
+        if data is not None:
+            serialized_data = data_to_json(data)
+        with zipfile.ZipFile(save_path, mode="w") as archive:
+            # Do not try to save "None" elements
+            if data is not None:
+                archive.writestr("data", serialized_data)
+
+    @classmethod
+    def load(cls, path, verbose: int = 0):
+
+        load_path = open_path(load_path, "r", verbose=verbose, suffix="zip")
+
+        # Open the zip archive and load data
+        try:
+            with zipfile.ZipFile(load_path) as archive:
+                namelist = archive.namelist()
+                # If data or parameters is not in the
+                # zip archive, assume they were stored
+                # as None (_save_to_file_zip allows this).
+                data = None
+
+                if "data" in namelist:
+                    # Load class parameters that are stored
+                    # with either JSON or pickle (not PyTorch variables).
+                    json_data = archive.read("data").decode()
+                    data = json_to_data(json_data)
+
+                model = cls(data["env"], data["config"],
+                            data["totaltimesteps"], data["obs_mask"], data["use_hnp"])
+                model.__dict__.update(data)
+                return model
+
+        except zipfile.BadZipFile as e:
+            # load_path wasn't a zip file
+            raise ValueError(
+                f"Error: the file {load_path} wasn't a zip-file") from e
 
 
 class FilterObservation(gym.ObservationWrapper):
@@ -450,10 +491,9 @@ elif agent_config["name"] == "RandomAgent":
 
 env.close()
 if agent_config["model_output_dir"]:
-    if agent_config["name"] in ["DQN"]:
-        logger.info("Saving the trained model...")
-        model.save(agent_config["model_output_dir"] + experiment_name)
-        logger.info(
-            f"Trained model is saved in {agent_config['model_output_dir'] + experiment_name}")
+    logger.info("Saving the trained model...")
+    model.save(agent_config["model_output_dir"] + experiment_name)
+    logger.info(
+        f"Trained model is saved in {agent_config['model_output_dir'] + experiment_name}")
 if wandb.run:
     wandb.finish()
