@@ -9,18 +9,25 @@ def main(filenames: list[str]) -> None:
     if len(filenames) > 2:
         plot_diff(filenames[1:])
     else:
-        if ".npy" in filenames[1]:
-            plot_npy(filenames[1])
+        if ".npz" in filenames[1]:
+            results = np.load(filenames[1])
+            agent_name = filenames[1].split("/")[-1].split("_")[0]
+            for f in results.files:
+                if "rewards" in f:
+                    plot_rewards(agent_name, results[f])
+                    break
+        elif ".npy" in filenames[1]:
+            filename = filenames[1].split("/")[-1]
+            agent_name = filename.split("_")[0]
+            rewards = np.load(filename)
+            plot_rewards(agent_name, rewards)
         elif ".json" in filenames[1]:
             plot_dqn(filenames[1])
         else:
-            print("Unrecognized file extenstion")
+            print("Unrecognized file extension")
 
 
-def plot_npy(filename: str) -> None:
-    agent_name = filename.split("_")[0]
-    rewards = np.load(filename)
-    
+def plot_rewards(agent_name: str, rewards: np.ndarray) -> None:
     f = plt.figure()
     f.set_figwidth(16)
     f.set_figheight(7)
@@ -28,18 +35,21 @@ def plot_npy(filename: str) -> None:
     plt.plot(rewards)
     plt.xlabel("Episodes")
     plt.ylabel("Episodic Rewards")
-    plt.title(f"{agent_name.upper()} Agent Training Rewards")
+    plt.title(f"{agent_name} Training Rewards")
     # plt.show()
     plt.savefig(f"{agent_name}_rewards.png")
     plt.close()
 
 
 def plot_diff(filenames: list[str]) -> None:
-    agent_1 = filenames[0].split("_")[0]
-    agent_2 = filenames[1].split("_")[0]
+    filename_0 = filenames[0].split("/")[-1]
+    filename_1 = filenames[1].split("/")[-1]
 
-    rewards_1 = np.load(filenames[0])
-    rewards_2 = np.load(filenames[1])
+    agent_1 = filename_0.split("_")[0]
+    agent_2 = filename_1.split("_")[0]
+
+    rewards_1 = np.load(filename_0)
+    rewards_2 = np.load(filename_1)
     rewards_diff = rewards_1 - rewards_2
 
     f = plt.figure()
@@ -49,7 +59,7 @@ def plot_diff(filenames: list[str]) -> None:
     plt.plot(rewards_diff)
     plt.xlabel("Episodes")
     plt.ylabel("Episodic Rewards Diff")
-    plt.title(f"{agent_1.upper()} vs {agent_2.upper()} Training Rewards Diff")
+    plt.title(f"{agent_1} vs {agent_2} Training Rewards Diff")
     plt.rcParams["figure.figsize"] = (35,10)
     # plt.show()
     plt.savefig(f"{agent_1}_v_{agent_2}_rewards.png")

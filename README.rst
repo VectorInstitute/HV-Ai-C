@@ -104,8 +104,8 @@ This is a minimalist example of using the HNP Q-Learning agent in Sinergym
         "env": {
             "name": "Eplus-5Zone-hot-discrete-v1",
             "normalize": True,
-            "obs_to_keep": [4, 5, 13],
-            "mask": [0, 0, 0]
+            "obs_to_keep": [0, 1, 8, 10],
+            "mask": [0, 0, 0, 0]
         }
     }
 
