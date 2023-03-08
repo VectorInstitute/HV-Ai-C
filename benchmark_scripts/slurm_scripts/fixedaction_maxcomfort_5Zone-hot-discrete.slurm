@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=FixedAction_MinPower_5Zone-hot-discrete
+#SBATCH --job-name=FixedAction_MaxComfort_5Zone-hot-discrete
 
 #SBATCH --partition=cpu
 
