@@ -59,5 +59,6 @@ RUN apt-get update && apt-get upgrade -y \
 
 # Install HNP
 RUN pip install hnp
+RUN pip install matplotlib
 
 CMD ["/bin/bash"]

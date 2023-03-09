@@ -66,7 +66,7 @@ class Agent(ABC):
 
         logging.info("Saving results...")
 
-        np.save(f"{dir_name}/rewards.npy", self.rewards)
+        np.save(f"{dir_name}/{self.__class__.__name__}_rewards.npy", self.rewards)
 
 
 class RandomActionAgent(Agent):
@@ -344,6 +344,7 @@ class QLearningAgent(Agent):
                 self.learning_rate = self.learning_rate * self.learning_rate_annealing
             if done:
                 obs = self.env.reset()
+                prev_vtb_index, _ = self.get_vtb_idx_from_obs(obs)
     
     def save_results(self) -> None:
         """
@@ -360,8 +361,12 @@ class QLearningAgent(Agent):
 
         logging.info("Saving results...")
 
+        with_hnp = ""
+        if self.use_hnp:
+            with_hnp = "-HNP"
+
         np.savez(
-            f"{dir_name}/results.npz", 
+            f"{dir_name}/{self.__class__.__name__}{with_hnp}_results.npz", 
              qtb=self.qtb, 
              rewards=self.rewards,
         )
