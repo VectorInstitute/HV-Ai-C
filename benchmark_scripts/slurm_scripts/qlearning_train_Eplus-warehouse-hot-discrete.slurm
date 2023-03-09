@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=QLearning_Train_Eplus-warehouse-hot-discrete-train-v1
+#SBATCH --job-name=QLearning_Train_Eplus-warehouse-hot-discrete
 
 #SBATCH --partition=cpu
 

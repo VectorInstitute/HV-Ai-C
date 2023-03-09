@@ -207,7 +207,7 @@ class QLearningAgent:
         episodes_timesteps = []
         ep_n = 0
         total_timesteps = 0
-        while ep_n < self.config["num_episodes"]:
+        while ep_n < self.agent_config["num_episodes"]:
             episode_reward = 0
             timesteps = 0
             obs = self.env.reset()
@@ -439,7 +439,7 @@ if __name__ == "__main__":
     elif agent_config["name"] == "QLearning":
         model = QLearningAgent(
             env, {"agent": agent_config, "env": env_config}, total_timesteps, np.array(env_config["mask"]), agent_config["hnp"])
-        # model.train()
+        model.train()
     elif agent_config["name"].split('_')[0] == "FixedAction":
         start_time = time.time_ns()
         episodes_return = []
@@ -505,6 +505,6 @@ if __name__ == "__main__":
         logger.info("Saving the trained model...")
         model.save(save_path)
         logger.info(
-            f"Trained model is saved in {save_path}")
+            f"The trained model is saved in {save_path}")
     if wandb.run:
         wandb.finish()

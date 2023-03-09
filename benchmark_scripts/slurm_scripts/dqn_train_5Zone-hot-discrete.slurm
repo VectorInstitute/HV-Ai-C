@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=DQN_Train_Eplus-5Zone-hot-discrete-train-v1 
+#SBATCH --job-name=DQN_Train_Eplus-5Zone-hot-discrete
 
 #SBATCH --partition=cpu
 

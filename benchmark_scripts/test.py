@@ -61,6 +61,8 @@ if __name__ == "__main__":
         obs = env.reset()
         while True:
             action = model.predict(obs)
+            if not isinstance(action, np.int64):
+                action = int(action[0])
             state, reward, done, info = env.step(action)
             total_reward += reward
             if done:

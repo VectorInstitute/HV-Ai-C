@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=RandomAgent_Train
+#SBATCH --job-name=RandomAgent_Train_Eplus-5Zone-hot-discrete-train-v1
 
 #SBATCH --partition=cpu
 

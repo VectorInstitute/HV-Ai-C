@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=QLearning_Train_Eplus-warehouse-hot-discrete-stochastic
+#SBATCH --job-name=RandomAgent_Train_Eplus-warehouse-hot-discrete
 
 #SBATCH --partition=cpu
 
@@ -16,4 +16,4 @@ export PATH=/pkgs/anaconda3/bin/conda:$PATH
 source activate $HOME/condaenvs/sinergym
 
 # put your command here
-python $HOME/MBRL-HVAC-Energy-Optimization/benchmark_scripts/train.py --algo QLearning --env Eplus-warehouse-hot-discrete-stochastic-train-v1
+python $HOME/MBRL-HVAC-Energy-Optimization/benchmark_scripts/train.py --algo RandomAgent --env Eplus-warehouse-hot-discrete-train_v1

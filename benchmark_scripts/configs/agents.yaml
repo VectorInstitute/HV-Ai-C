@@ -23,11 +23,11 @@ HNP-QLearning:
   # Trained model output dir
   model_output_dir: "./result_models"
   # Wheather log into WandB
-  wandb: False
+  wandb: True
 QLearning:
   name: "QLearning"
   # Number of episodes 
-  num_episodes: 1
+  num_episodes: 100
   # Discount factor
   gamma: 0.99
   # Number of tiles for tile coding
@@ -49,7 +49,7 @@ QLearning:
   # Trained model output dir
   model_output_dir: "./result_models"
   # Wheather log into WandB
-  wandb: False
+  wandb: True
 DQN:
   name: "DQN"
   # Number of episodes 
@@ -67,7 +67,7 @@ DQN:
   # Trained model output dir
   model_output_dir: "./result_models"
   # Wheather log into WandB
-  wandb: True
+  wandb: False
 FixedActionMaxComfort:
   name: "FixedAction_MaxComfort"
   # Number of episodes 
