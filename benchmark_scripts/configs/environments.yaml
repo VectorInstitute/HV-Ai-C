@@ -28,3 +28,63 @@ Eplus-5Zone-hot-discrete-test-v1:
   #   1 - fast-changing continuous var
   #   2 - discrete var
   mask: [0, 0, 0, 0]
+
+Eplus-warehouse-hot-discrete-train-v1:
+  # Sinergym environment name
+  name: Eplus-warehouse-hot-discrete-train-v1
+  # Reward Type
+  reward_type: "Linear"
+  # Whether to normalise observations
+  normalize: True
+  # The observation variables to use for training, offset by 4 to account for time vars 
+  obs_to_keep: [4, 5, 12, 14]
+  # The type of each observation variable: 
+  #   0 - slowly-changing continuous var
+  #   1 - fast-changing continuous var
+  #   2 - discrete var
+  mask: [0, 0, 0, 0]
+
+Eplus-warehouse-hot-discrete-test-v1:
+  # Sinergym environment name
+  name: Eplus-warehouse-hot-discrete-test-v1
+  # Reward Type
+  reward_type: "Linear"
+  # Whether to normalise observations
+  normalize: True
+  # The observation variables to use for training, offset by 4 to account for time vars 
+  obs_to_keep: [4, 5, 12, 14]
+  # The type of each observation variable: 
+  #   0 - slowly-changing continuous var
+  #   1 - fast-changing continuous var
+  #   2 - discrete var
+  mask: [0, 0, 0, 0]
+
+Eplus-warehouse-hot-discrete-stochastic-train-v1:
+  # Sinergym environment name
+  name: Eplus-warehouse-hot-discrete-stochastic-train-v1
+  # Reward Type
+  reward_type: "Linear"
+  # Whether to normalise observations
+  normalize: True
+  # The observation variables to use for training, offset by 4 to account for time vars 
+  obs_to_keep: [4, 5, 12, 14]
+  # The type of each observation variable: 
+  #   0 - slowly-changing continuous var
+  #   1 - fast-changing continuous var
+  #   2 - discrete var
+  mask: [0, 0, 0, 0]
+
+Eplus-warehouse-hot-discrete-stochastic-test-v1:
+  # Sinergym environment name
+  name: Eplus-warehouse-hot-discrete-stochastic-test-v1
+  # Reward Type
+  reward_type: "Linear"
+  # Whether to normalise observations
+  normalize: True
+  # The observation variables to use for training, offset by 4 to account for time vars 
+  obs_to_keep: [4, 5, 12, 14]
+  # The type of each observation variable: 
+  #   0 - slowly-changing continuous var
+  #   1 - fast-changing continuous var
+  #   2 - discrete var
+  mask: [0, 0, 0, 0]
