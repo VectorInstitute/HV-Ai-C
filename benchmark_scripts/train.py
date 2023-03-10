@@ -500,7 +500,7 @@ if __name__ == "__main__":
                     break
 
     env.close()
-    if agent_config["model_output_dir"]:
+    if agent_config.get("model_output_dir"):
         save_path = agent_config["model_output_dir"] + "/" + experiment_name
         logger.info("Saving the trained model...")
         model.save(save_path)
