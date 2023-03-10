@@ -12,7 +12,7 @@
 #SBATCH --error=slurm-%x.err
 
 # prepare your environment here
-export PATH=/pkgs/anaconda3/bin/conda:$PATH
+export PATH=/pkgs/anaconda3/bin:$PATH
 source activate $HOME/condaenvs/sinergym
 
 # put your command here
