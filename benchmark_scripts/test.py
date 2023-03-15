@@ -19,7 +19,7 @@ if __name__ == "__main__":
     parser.add_argument("--model-path", type=str,
                         required=True, help="Trained model path")
     parser.add_argument("--num-eval", type=int,
-                        default=10, help="Number of evaluation episodes")
+                        default=50, help="Number of evaluation episodes")
     parser.add_argument("--env-config", type=str,
                         default="configs/environments.yaml", help="Environment config file")
     parser.add_argument("--wandb", action="store_true", help="Log using WandB")
