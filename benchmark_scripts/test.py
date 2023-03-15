@@ -22,7 +22,8 @@ if __name__ == "__main__":
                         default=50, help="Number of evaluation episodes")
     parser.add_argument("--env-config", type=str,
                         default="configs/environments.yaml", help="Environment config file")
-    parser.add_argument("--wandb", action="store_true", help="Log using WandB")
+    parser.add_argument("--no-wandb", action="store_false",
+                        help="Log using WandB")
 
     args = parser.parse_args()
 
