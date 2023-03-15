@@ -7,6 +7,7 @@ import sys
 import yaml
 import numpy as np
 from stable_baselines3 import DQN
+from tqdm import trange
 
 path_root = Path(__file__).parents[1]
 sys.path.append(str(path_root))
@@ -56,7 +57,7 @@ if __name__ == "__main__":
                                config={"env": env_config, "agent": model.agent_config}, sync_tensorboard=True)
 
     returns = []
-    for i in range(args.num_eval):
+    for i in trange(args.num_eval):
         total_reward = 0
         obs = env.reset()
         while True:
