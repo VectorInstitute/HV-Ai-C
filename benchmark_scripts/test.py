@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     if args.wandb:
         wandb_run = wandb.init(name=experiment_name, project="hnp", entity="vector-institute-aieng",
-                               config={"env": env_config, "agent": model.agent_config}, sync_tensorboard=True)
+                               config=model.__dict__, sync_tensorboard=True)
 
     returns = []
     for i in trange(args.num_eval):
