@@ -506,7 +506,7 @@ if __name__ == "__main__":
     env_config = env_config[args.env]
     agent_config = agent_config[args.algo]
 
-    experiment_name = f"{env_config['name']}_{'HNP-' if agent_config.get('hnp') else ''}{agent_config['name']}_{env_config['num_tiles'] if env_config.get('num_tiles') else ''}_{env_config['reward_type']}_{agent_config['num_episodes']}_{datetime.now():%Y-%m-%d %H:%M:%S}"
+    experiment_name = f"{env_config['name']}_{'HNP-' if agent_config.get('hnp') else ''}{agent_config['name']}_{agent_config['num_tiles'] if env_config.get('num_tiles') else ''}_{env_config['reward_type']}_{agent_config['num_episodes']}_{datetime.now():%Y-%m-%d %H:%M:%S}"
 
     if agent_config["wandb"]:
         # Wandb configuration
