@@ -1,7 +1,7 @@
 HNP-QLearning:
   name: "QLearning"
   # Number of episodes 
-  num_episodes: 100
+  num_episodes: 50
   # Discount factor
   gamma: 0.99
   # Number of tiles for tile coding
@@ -27,7 +27,7 @@ HNP-QLearning:
 QLearning:
   name: "QLearning"
   # Number of episodes 
-  num_episodes: 100
+  num_episodes: 50
   # Discount factor
   gamma: 0.99
   # Number of tiles for tile coding
@@ -53,7 +53,7 @@ QLearning:
 DQN:
   name: "DQN"
   # Number of episodes 
-  num_episodes: 100
+  num_episodes: 50
   # Discount factor
   gamma: 0.99
   # Annealing rate for Epsilon
