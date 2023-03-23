@@ -43,12 +43,66 @@ class LogEpisodeReturnCallback(BaseCallback):
     def __init__(self, verbose=0):
         super().__init__(verbose)
 
+    def _on_training_start(self) -> None:
+        """
+        This method is called before the first rollout starts.
+        """
+        env = self.locals["self"].env.envs[0]
+        self.n_timesteps_episode = int(
+            env.simulator._eplus_one_epi_len / env.simulator._eplus_run_stepsize)
+        num_episodes = int(
+            self.locals["total_timesteps"] / self.n_timesteps_episode)
+        self.total_power = np.zeros((num_episodes, self.n_timesteps_episode))
+        self.out_temp = np.zeros((num_episodes, self.n_timesteps_episode))
+        self.abs_comfort = np.zeros((num_episodes, self.n_timesteps_episode))
+        self.comfort_penalty = np.zeros(
+            (num_episodes, self.n_timesteps_episode))
+        self.total_power_no_units = np.zeros(
+            (num_episodes, self.n_timesteps_episode))
+        self.temp = np.zeros((num_episodes, self.n_timesteps_episode))
+        self.episodes_return = np.zeros(num_episodes)
+        self.ep_timesteps = np.zeros(num_episodes)
+
     def _on_step(self) -> bool:
-        for i, done in enumerate(self.locals["dones"]):
-            if done:
-                self.logger.record("rollout/ep_return",
-                                   self.locals['env'].envs[i].episode_returns[-1])
+        if wandb.run:
+            info = self.locals["infos"][0]
+            i = int((self.num_timesteps - 1) / self.n_timesteps_episode)
+            timestep = info["timestep"] - 1
+            self.episodes_return[i] += self.locals["rewards"][0]
+            self.total_power[i, timestep] = info["total_power"]
+            self.out_temp[i, timestep] = info["out_temperature"]
+            self.temp[i, timestep] = info["temperatures"][0]
+            self.comfort_penalty[i, timestep] = info["comfort_penalty"]
+            self.abs_comfort[i, timestep] = info["abs_comfort"]
+            self.total_power_no_units[i,
+                                      timestep] = info["total_power_no_units"]
+            log_dict = {"rewards/total_power": info["total_power"], "rewards/out_temp": info["out_temperature"], "rewards/temp": info["temperatures"][0],
+                        "rewards/abs_comfort": info["abs_comfort"], "rewards/comfort_penalty": info["comfort_penalty"], "rewards/total_power_no_units": info["total_power_no_units"], "step": timestep}
+            wandb.log(log_dict)
+            if self.locals["dones"][0]:
+                self.ep_timesteps[i] = timestep + 1
+                log_dict = {"rollout/ep_rew_mean": np.mean(self.episodes_return[:i + 1]),
+                            "rollout/ep_return": self.episodes_return[i], "rollout/ep_len_mean": np.mean(self.ep_timesteps[:i + 1]), "rollout/exploration_rate": self.locals["self"].exploration_rate, "train/learning_rate": self.locals["self"].learning_rate, "time/total_timesteps": np.sum(self.ep_timesteps), "episode": i}
+                wandb.log(log_dict)
         return True
+
+    def _on_training_end(self) -> None:
+        if wandb.run:
+            total_power_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
+                np.mean(self.total_power, axis=0))], columns=["timestep", "total_power"])
+            abs_comfort_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
+                np.mean(self.abs_comfort, axis=0))], columns=["timestep", "abs_comfort"])
+            comfort_penalty_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
+                np.mean(self.comfort_penalty, axis=0))], columns=["timestep", "comfort_penalty"])
+            total_power_no_units_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
+                np.mean(self.total_power_no_units, axis=0))], columns=["timestep", "total_power_no_units"])
+            out_temp_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
+                np.mean(self.out_temp, axis=0))], columns=["timestep", "out_temp"])
+            temp = wandb.Table(data=[(i, item) for i, item in enumerate(
+                np.mean(self.temp, axis=0))], columns=["timestep", "temp"])
+            wandb.log({"total_power": wandb.plot.line(
+                total_power_tbl, "timestep", "total_power"), "comfort_penalty": wandb.plot.line(
+                comfort_penalty_tbl, "timestep", "comfort_penalty"), "abs_comfort": wandb.plot.line(abs_comfort_tbl, "timestep", "abs_comfort"), "out_temp": wandb.plot.line(out_temp_tbl, "timestep", "out_temp"), "temp": wandb.plot.line(temp, "timestep", "temp"), "total_power_no_units": wandb.plot.line(total_power_no_units_tbl, "timestep", "total_power_no_units")})
 
 
 class QLearningAgent:
@@ -93,6 +147,8 @@ class QLearningAgent:
         self.obs_mask = obs_mask
         self.exploration_schedule = get_linear_fn(
             self.agent_config["initial_epsilon"], self.agent_config["exploration_final_eps"], self.agent_config["exploration_fraction"])
+        self.n_timesteps_episode = int(env.simulator._eplus_one_epi_len /
+                                       env.simulator._eplus_run_stepsize)
 
         # Indices of continuous vars
         self.continuous_idx = np.where(obs_mask <= 1)[0]
@@ -207,6 +263,18 @@ class QLearningAgent:
         episodes_timesteps = []
         ep_n = 0
         total_timesteps = 0
+        total_power = np.zeros(
+            (self.agent_config["num_episodes"], self.n_timesteps_episode))
+        out_temp = np.zeros(
+            (self.agent_config["num_episodes"], self.n_timesteps_episode))
+        abs_comfort = np.zeros(
+            (self.agent_config["num_episodes"], self.n_timesteps_episode))
+        comfort_penalty = np.zeros(
+            (self.agent_config["num_episodes"], self.n_timesteps_episode))
+        total_power_no_units = np.zeros(
+            (self.agent_config["num_episodes"], self.n_timesteps_episode))
+        temp = np.zeros(
+            (self.agent_config["num_episodes"], self.n_timesteps_episode))
         while ep_n < self.agent_config["num_episodes"]:
             episode_reward = 0
             timesteps = 0
@@ -216,9 +284,21 @@ class QLearningAgent:
                 action = self.choose_action(prev_vtb_index)
                 # Set value table to value of max action at that state
                 self.vtb = np.nanmax(self.qtb, -1)
-                obs, rew, done, _ = self.env.step(action)
+                obs, rew, done, info = self.env.step(action)
                 episode_reward += rew
                 next_value, next_vtb_index = self.get_next_value(obs)
+
+                if wandb.run:
+                    total_power[ep_n, timesteps] = info["total_power"]
+                    out_temp[ep_n, timesteps] = info["out_temperature"]
+                    temp[ep_n, timesteps] = info["temperatures"][0]
+                    comfort_penalty[ep_n, timesteps] = info["comfort_penalty"]
+                    abs_comfort[ep_n, timesteps] = info["abs_comfort"]
+                    total_power_no_units[ep_n,
+                                         timesteps] = info["total_power_no_units"]
+                    log_dict = {"rewards/total_power": total_power[ep_n, timesteps], "rewards/out_temp": out_temp[ep_n, timesteps], "rewards/temp": temp[ep_n, timesteps],
+                                "rewards/abs_comfort": abs_comfort[ep_n, timesteps], "rewards/comfort_penalty": comfort_penalty[ep_n, timesteps], "rewards/total_power_no_units": total_power_no_units[ep_n, timesteps], "step": timesteps}
+                    wandb.log(log_dict)
 
                 # Do Q learning update
                 prev_qtb_index = tuple([*prev_vtb_index, action])
@@ -252,11 +332,27 @@ class QLearningAgent:
                             (time.time_ns() - start_time) / 1e9, sys.float_info.epsilon)
                     if wandb.run:
                         wandb.log({"rollout/ep_rew_mean": episodes_return_mean, "rollout/ep_len_mean": episodes_timesteps_mean, "rollout/ep_return": episode_reward,
-                                   "rollout/exploration_rate": self.epsilon, "train/learning_rate": self.learning_rate, "time/total_timesteps": total_timesteps, "time/time_elapsed": time_elapsed})
+                                   "rollout/exploration_rate": self.epsilon, "train/learning_rate": self.learning_rate, "time/total_timesteps": total_timesteps, "episode": ep_n})
                     logger.info(
                         f"------------------------\nepisode: {ep_n}\nepisode_return: {episode_reward}\nepisode_timesteps: {timesteps}\naverage_episodes_return: {episodes_return_mean}\naverage_episodes_timesteps: {episodes_timesteps_mean}\ntotal_timesteps: {total_timesteps}\n-------------------------")
                     ep_n += 1
                     break
+        if wandb.run:
+            total_power_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
+                np.mean(total_power, axis=0))], columns=["timestep", "total_power"])
+            abs_comfort_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
+                np.mean(abs_comfort, axis=0))], columns=["timestep", "abs_comfort"])
+            comfort_penalty_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
+                np.mean(comfort_penalty, axis=0))], columns=["timestep", "comfort_penalty"])
+            total_power_no_units_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
+                np.mean(total_power_no_units, axis=0))], columns=["timestep", "total_power_no_units"])
+            out_temp_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
+                np.mean(out_temp, axis=0))], columns=["timestep", "out_temp"])
+            temp = wandb.Table(data=[(i, item) for i, item in enumerate(
+                np.mean(temp, axis=0))], columns=["timestep", "temp"])
+            wandb.log({"total_power": wandb.plot.line(
+                total_power_tbl, "timestep", "total_power"), "comfort_penalty": wandb.plot.line(
+                comfort_penalty_tbl, "timestep", "comfort_penalty"), "abs_comfort": wandb.plot.line(abs_comfort_tbl, "timestep", "abs_comfort"), "out_temp": wandb.plot.line(out_temp_tbl, "timestep", "out_temp"), "temp": wandb.plot.line(temp, "timestep", "temp"), "total_power_no_units": wandb.plot.line(total_power_no_units_tbl, "timestep", "total_power_no_units")})
 
     def save(self, save_path):
         data = self.__dict__.copy()
@@ -271,7 +367,7 @@ class QLearningAgent:
             if data is not None:
                 archive.writestr("data", serialized_data)
 
-    @classmethod
+    @ classmethod
     def load(cls, load_path, env, verbose: int = 0):
 
         load_path = open_path(load_path, "r", verbose=verbose, suffix="zip")
@@ -415,7 +511,11 @@ if __name__ == "__main__":
     if agent_config["wandb"]:
         # Wandb configuration
         wandb_run = wandb.init(name=experiment_name, project="hnp", entity="vector-institute-aieng",
-                               config={"env": env_config, "agent": agent_config}, sync_tensorboard=True)
+                               config={"env": env_config, "agent": agent_config}, job_type="train", group=env_config["name"])
+        wandb.define_metric("step")
+        wandb.define_metric("episode")
+        wandb.define_metric("rollout/*", step_metric="episode")
+        wandb.define_metric("rewards/*", step_metric="step")
 
     tensorboard_log_dir = f"runs/{wandb_run.id}/" + \
         experiment_name if wandb.run else "./tensorboard_log/" + experiment_name
