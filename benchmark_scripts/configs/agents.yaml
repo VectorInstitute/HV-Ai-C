@@ -5,7 +5,7 @@ HNP-QLearning:
   # Discount factor
   gamma: 0.99
   # Number of tiles for tile coding
-  num_tiles: 40
+  num_tiles: 5
   # Exploration initial rate
   initial_epsilon: 1.0
   # Annealing rate for Epsilon

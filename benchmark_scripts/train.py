@@ -64,25 +64,26 @@ class LogEpisodeReturnCallback(BaseCallback):
         self.ep_timesteps = np.zeros(num_episodes)
 
     def _on_step(self) -> bool:
-        if wandb.run:
-            info = self.locals["infos"][0]
-            i = int((self.num_timesteps - 1) / self.n_timesteps_episode)
-            timestep = info["timestep"] - 1
-            self.episodes_return[i] += self.locals["rewards"][0]
-            self.total_power[i, timestep] = info["total_power"]
-            self.out_temp[i, timestep] = info["out_temperature"]
-            self.temp[i, timestep] = info["temperatures"][0]
-            self.comfort_penalty[i, timestep] = info["comfort_penalty"]
-            self.abs_comfort[i, timestep] = info["abs_comfort"]
-            self.total_power_no_units[i,
-                                      timestep] = info["total_power_no_units"]
-            log_dict = {"rewards/total_power": info["total_power"], "rewards/out_temp": info["out_temperature"], "rewards/temp": info["temperatures"][0],
-                        "rewards/abs_comfort": info["abs_comfort"], "rewards/comfort_penalty": info["comfort_penalty"], "rewards/total_power_no_units": info["total_power_no_units"], "step": timestep}
-            wandb.log(log_dict)
-            if self.locals["dones"][0]:
-                self.ep_timesteps[i] = timestep + 1
+        info = self.locals["infos"][0]
+        i = int((self.num_timesteps - 1) / self.n_timesteps_episode)
+        timestep = info["timestep"] - 1
+        self.episodes_return[i] += self.locals["rewards"][0]
+        self.total_power[i, timestep] = info["total_power"]
+        self.out_temp[i, timestep] = info["out_temperature"]
+        self.temp[i, timestep] = info["temperatures"][0]
+        self.comfort_penalty[i, timestep] = info["comfort_penalty"]
+        self.abs_comfort[i, timestep] = info["abs_comfort"]
+        self.total_power_no_units[i,
+                                  timestep] = info["total_power_no_units"]
+        # if wandb.run:
+        #     log_dict = {"rewards/total_power": info["total_power"], "rewards/out_temp": info["out_temperature"], "rewards/temp": info["temperatures"][0],
+        #                 "rewards/abs_comfort": info["abs_comfort"], "rewards/comfort_penalty": info["comfort_penalty"], "rewards/total_power_no_units": info["total_power_no_units"], "step": timestep}
+        #     wandb.log(log_dict)
+        if self.locals["dones"][0]:
+            self.ep_timesteps[i] = timestep + 1
+            if wandb.run:
                 log_dict = {"rollout/ep_rew_mean": np.mean(self.episodes_return[:i + 1]),
-                            "rollout/ep_return": self.episodes_return[i], "rollout/ep_len_mean": np.mean(self.ep_timesteps[:i + 1]), "rollout/exploration_rate": self.locals["self"].exploration_rate, "train/learning_rate": self.locals["self"].learning_rate, "time/total_timesteps": np.sum(self.ep_timesteps), "episode": i}
+                            "rollout/ep_return": self.episodes_return[i], "rollout/ep_len_mean": np.mean(self.ep_timesteps[:i + 1]), "rollout/exploration_rate": self.locals["self"].exploration_rate, "train/learning_rate": self.locals["self"].learning_rate, "time/total_timesteps": np.sum(self.ep_timesteps), "episode": i, "step": self.num_timesteps}
                 wandb.log(log_dict)
         return True
 
@@ -258,7 +259,6 @@ class QLearningAgent:
         """Q-Learning agent training"""
 
         # n people, outdoor temperature, indoor temperature
-        start_time = time.time_ns()
         episodes_return = []
         episodes_timesteps = []
         ep_n = 0
@@ -288,17 +288,17 @@ class QLearningAgent:
                 episode_reward += rew
                 next_value, next_vtb_index = self.get_next_value(obs)
 
-                if wandb.run:
-                    total_power[ep_n, timesteps] = info["total_power"]
-                    out_temp[ep_n, timesteps] = info["out_temperature"]
-                    temp[ep_n, timesteps] = info["temperatures"][0]
-                    comfort_penalty[ep_n, timesteps] = info["comfort_penalty"]
-                    abs_comfort[ep_n, timesteps] = info["abs_comfort"]
-                    total_power_no_units[ep_n,
-                                         timesteps] = info["total_power_no_units"]
-                    log_dict = {"rewards/total_power": total_power[ep_n, timesteps], "rewards/out_temp": out_temp[ep_n, timesteps], "rewards/temp": temp[ep_n, timesteps],
-                                "rewards/abs_comfort": abs_comfort[ep_n, timesteps], "rewards/comfort_penalty": comfort_penalty[ep_n, timesteps], "rewards/total_power_no_units": total_power_no_units[ep_n, timesteps], "step": timesteps}
-                    wandb.log(log_dict)
+                total_power[ep_n, timesteps] = info["total_power"]
+                out_temp[ep_n, timesteps] = info["out_temperature"]
+                temp[ep_n, timesteps] = info["temperatures"][0]
+                comfort_penalty[ep_n, timesteps] = info["comfort_penalty"]
+                abs_comfort[ep_n, timesteps] = info["abs_comfort"]
+                total_power_no_units[ep_n,
+                                     timesteps] = info["total_power_no_units"]
+                # if wandb.run:
+                #     log_dict = {"rewards/total_power": total_power[ep_n, timesteps], "rewards/out_temp": out_temp[ep_n, timesteps], "rewards/temp": temp[ep_n, timesteps],
+                #                 "rewards/abs_comfort": abs_comfort[ep_n, timesteps], "rewards/comfort_penalty": comfort_penalty[ep_n, timesteps], "rewards/total_power_no_units": total_power_no_units[ep_n, timesteps], "step": timesteps}
+                #     wandb.log(log_dict)
 
                 # Do Q learning update
                 prev_qtb_index = tuple([*prev_vtb_index, action])
@@ -328,13 +328,11 @@ class QLearningAgent:
                     if ep_n % self.agent_config["log_interval"] == 0:
                         episodes_return_mean = np.mean(episodes_return)
                         episodes_timesteps_mean = np.mean(episodes_timesteps)
-                        time_elapsed = max(
-                            (time.time_ns() - start_time) / 1e9, sys.float_info.epsilon)
-                    if wandb.run:
-                        wandb.log({"rollout/ep_rew_mean": episodes_return_mean, "rollout/ep_len_mean": episodes_timesteps_mean, "rollout/ep_return": episode_reward,
-                                   "rollout/exploration_rate": self.epsilon, "train/learning_rate": self.learning_rate, "time/total_timesteps": total_timesteps, "episode": ep_n})
-                    logger.info(
-                        f"------------------------\nepisode: {ep_n}\nepisode_return: {episode_reward}\nepisode_timesteps: {timesteps}\naverage_episodes_return: {episodes_return_mean}\naverage_episodes_timesteps: {episodes_timesteps_mean}\ntotal_timesteps: {total_timesteps}\n-------------------------")
+                        if wandb.run:
+                            wandb.log({"rollout/ep_rew_mean": episodes_return_mean, "rollout/ep_len_mean": episodes_timesteps_mean, "rollout/ep_return": episode_reward,
+                                       "rollout/exploration_rate": self.epsilon, "train/learning_rate": self.learning_rate, "time/total_timesteps": total_timesteps, "episode": ep_n, "step": total_timesteps})
+                        logger.info(
+                            f"------------------------\nepisode: {ep_n}\nepisode_return: {episode_reward}\nepisode_timesteps: {timesteps}\naverage_episodes_return: {episodes_return_mean}\naverage_episodes_timesteps: {episodes_timesteps_mean}\ntotal_timesteps: {total_timesteps}\n-------------------------")
                     ep_n += 1
                     break
         if wandb.run:
@@ -515,7 +513,11 @@ if __name__ == "__main__":
         wandb.define_metric("step")
         wandb.define_metric("episode")
         wandb.define_metric("rollout/*", step_metric="episode")
-        wandb.define_metric("rewards/*", step_metric="step")
+        wandb.define_metric("time/*", step_metric="step")
+        wandb.define_metric("train/*", step_metric="step")
+        # wandb.define_metric("rewards/*", step_metric="step")
+
+        wandb.Table.MAX_ROWS = 200000
 
     tensorboard_log_dir = f"runs/{wandb_run.id}/" + \
         experiment_name if wandb.run else "./tensorboard_log/" + experiment_name
@@ -528,6 +530,7 @@ if __name__ == "__main__":
         env.simulator._eplus_run_stepsize
     total_timesteps = agent_config["num_episodes"] * n_timesteps_episode
 
+    model = None
     if agent_config["name"] == "DQN":
         vec_env = DummyVecEnv([lambda: Monitor(env)])
 
@@ -541,7 +544,6 @@ if __name__ == "__main__":
             env, {"agent": agent_config, "env": env_config}, total_timesteps, np.array(env_config["mask"]), agent_config["hnp"])
         model.train()
     elif agent_config["name"].split('_')[0] == "FixedAction":
-        start_time = time.time_ns()
         episodes_return = []
         episodes_timesteps = []
         total_timesteps = 0
@@ -559,18 +561,15 @@ if __name__ == "__main__":
                     episodes_return.append(episode_reward)
                     episodes_timesteps.append(timestep)
                     if i % agent_config["log_interval"] == 0:
-                        time_elapsed = max(
-                            (time.time_ns() - start_time) / 1e9, sys.float_info.epsilon)
                         episodes_return_mean = np.mean(episodes_return)
                         episodes_timesteps_mean = np.mean(episodes_timesteps)
                         if wandb.run:
                             wandb.log({"rollout/ep_rew_mean": episodes_return_mean, "rollout/ep_return": episode_reward,
-                                       "rollout/ep_len_mean": episodes_timesteps_mean, "time/total_timesteps": total_timesteps, "time/time_elapsed": time_elapsed})
+                                       "rollout/ep_len_mean": episodes_timesteps_mean, "time/total_timesteps": total_timesteps})
                         logger.info(
                             f"------------------------\nepisode: {i}\nepisode_return: {episode_reward}\nepisode_timesteps: {timestep}\naverage_episodes_return: {episodes_return_mean}\naverage_episodes_timesteps: {episodes_timesteps_mean}\ntotal_timesteps: {total_timesteps}\n-------------------------")
                     break
     elif agent_config["name"] == "RandomAgent":
-        start_time = time.time_ns()
         episodes_return = []
         episodes_timesteps = []
         total_timesteps = 0
@@ -588,23 +587,23 @@ if __name__ == "__main__":
                     episodes_return.append(episode_reward)
                     episodes_timesteps.append(timestep)
                     if i % agent_config["log_interval"] == 0:
-                        time_elapsed = max(
-                            (time.time_ns() - start_time) / 1e9, sys.float_info.epsilon)
                         episodes_return_mean = np.mean(episodes_return)
                         episodes_timesteps_mean = np.mean(episodes_timesteps)
                         if wandb.run:
                             wandb.log({"rollout/ep_rew_mean": episodes_return_mean, "rollout/ep_return": episode_reward,
-                                       "rollout/ep_len_mean": episodes_timesteps_mean, "time/total_timesteps": total_timesteps, "time/time_elapsed": time_elapsed})
+                                       "rollout/ep_len_mean": episodes_timesteps_mean, "time/total_timesteps": total_timesteps})
                         logger.info(
                             f"------------------------\nepisode: {i}\nepisode_return: {episode_reward}\nepisode_timesteps: {timestep}\naverage_episodes_return: {episodes_return_mean}\naverage_episodes_timesteps: {episodes_timesteps_mean}\ntotal_timesteps: {total_timesteps}\n-------------------------")
                     break
 
     env.close()
     if agent_config.get("model_output_dir"):
-        save_path = agent_config["model_output_dir"] + "/" + experiment_name
-        logger.info("Saving the trained model...")
-        model.save(save_path)
-        logger.info(
-            f"The trained model is saved in {save_path}")
+        if model:
+            save_path = agent_config["model_output_dir"] + \
+                "/" + experiment_name.rsplit('_', 1)[0]
+            logger.info("Saving the trained model...")
+            model.save(save_path)
+            logger.info(
+                f"The trained model is saved in {save_path}")
     if wandb.run:
         wandb.finish()

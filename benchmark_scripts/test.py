@@ -59,7 +59,10 @@ if __name__ == "__main__":
         wandb.define_metric("step")
         wandb.define_metric("episode")
         wandb.define_metric("rollout/*", step_metric="episode")
-        wandb.define_metric("rewards/*", step_metric="step")
+        wandb.define_metric("time/*", step_metric="step")
+        wandb.define_metric("train/*", step_metric="step")
+        # wandb.define_metric("rewards/*", step_metric="step")
+        wandb.Table.MAX_ROWS = 200000
 
     n_timesteps_episode = int(env.simulator._eplus_one_epi_len /
                               env.simulator._eplus_run_stepsize)
@@ -80,17 +83,17 @@ if __name__ == "__main__":
                 action = int(action[0])
             state, reward, done, info = env.step(action)
             total_reward += reward
-            if wandb.run:
-                total_power[i, timestep] = info["total_power"]
-                out_temp[i, timestep] = info["out_temperature"]
-                temp[i, timestep] = info["temperatures"][0]
-                comfort_penalty[i, timestep] = info["comfort_penalty"]
-                abs_comfort[i, timestep] = info["abs_comfort"]
-                total_power_no_units[i,
-                                     timestep] = info["total_power_no_units"]
-                log_dict = {"rewards/total_power": total_power[i, timestep], "rewards/out_temp": out_temp[i, timestep], "rewards/temp": temp[i, timestep],
-                            "rewards/abs_comfort": abs_comfort[i, timestep], "rewards/comfort_penalty": comfort_penalty[i, timestep], "rewards/total_power_no_units": total_power_no_units[i, timestep], "step": timestep}
-                wandb.log(log_dict)
+            total_power[i, timestep] = info["total_power"]
+            out_temp[i, timestep] = info["out_temperature"]
+            temp[i, timestep] = info["temperatures"][0]
+            comfort_penalty[i, timestep] = info["comfort_penalty"]
+            abs_comfort[i, timestep] = info["abs_comfort"]
+            total_power_no_units[i,
+                                 timestep] = info["total_power_no_units"]
+            # if wandb.run:
+            #     log_dict = {"rewards/total_power": total_power[i, timestep], "rewards/out_temp": out_temp[i, timestep], "rewards/temp": temp[i, timestep],
+            #                 "rewards/abs_comfort": abs_comfort[i, timestep], "rewards/comfort_penalty": comfort_penalty[i, timestep], "rewards/total_power_no_units": total_power_no_units[i, timestep], "step": timestep}
+            #     wandb.log(log_dict)
             timestep += 1
             if done:
                 returns.append(total_reward)
