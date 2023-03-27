@@ -504,7 +504,7 @@ if __name__ == "__main__":
     env_config = env_config[args.env]
     agent_config = agent_config[args.algo]
 
-    experiment_name = f"{env_config['name']}_{'HNP-' if agent_config.get('hnp') else ''}{agent_config['name']}_{agent_config['num_tiles'] if agent_config.get('num_tiles') else ''}_{env_config['reward_type']}_{agent_config['num_episodes']}_{datetime.now():%Y-%m-%d %H:%M:%S}"
+    experiment_name = f"{env_config['name']}_{'HNP-' if agent_config.get('hnp') else ''}{agent_config['name']}_{env_config['reward_type']}_{agent_config['num_tiles'] if agent_config.get('num_tiles') else 'NA'}_{agent_config['num_episodes']}_{datetime.now():%Y-%m-%d %H:%M:%S}"
 
     if agent_config["wandb"]:
         # Wandb configuration
@@ -600,7 +600,7 @@ if __name__ == "__main__":
     if agent_config.get("model_output_dir"):
         if model:
             save_path = agent_config["model_output_dir"] + \
-                "/" + experiment_name.rsplit('_', 1)[0]
+                "/" + experiment_name.rsplit('_', 3)[0]
             logger.info("Saving the trained model...")
             model.save(save_path)
             logger.info(
