@@ -283,7 +283,7 @@ class QLearningAgent:
             while True:
                 action = self.choose_action(prev_vtb_index)
                 # Set value table to value of max action at that state
-                self.vtb = np.nanmax(self.qtb, -1)
+                # self.vtb = np.nanmax(self.qtb, -1)
                 obs, rew, done, info = self.env.step(action)
                 episode_reward += rew
                 next_value, next_vtb_index = self.get_next_value(obs)
@@ -305,8 +305,12 @@ class QLearningAgent:
                 self.state_visitation[prev_qtb_index[:-1]] += 1
                 curr_q = self.qtb[prev_qtb_index]
                 q_target = rew + self.gamma * next_value
-                self.qtb[prev_qtb_index] = curr_q + \
+                new_q_value = curr_q + \
                     self.learning_rate * (q_target - curr_q)
+                new_q_value = -1 if np.isnan(new_q_value) else new_q_value
+                self.qtb[prev_qtb_index] = new_q_value
+                if new_q_value > curr_q or total_timesteps == 0:
+                    self.vtb[prev_vtb_index] = new_q_value
                 total_timesteps += 1
                 timesteps += 1
                 prev_vtb_index = next_vtb_index
@@ -504,7 +508,7 @@ if __name__ == "__main__":
     env_config = env_config[args.env]
     agent_config = agent_config[args.algo]
 
-    experiment_name = f"{env_config['name']}_{'HNP-' if agent_config.get('hnp') else ''}{agent_config['name']}_{env_config['reward_type']}_{agent_config['num_tiles'] if agent_config.get('num_tiles') else 'NA'}_{agent_config['num_episodes']}_{datetime.now():%Y-%m-%d %H:%M:%S}"
+    experiment_name = f"{env_config['name']}_{'HNP-' if agent_config.get('hnp') else ''}{agent_config['name']}_{env_config['reward_type']}_{agent_config['num_tiles'] if agent_config.get('num_tiles') else 'NA'}_{datetime.now():%Y-%m-%d %H:%M:%S}"
 
     if agent_config["wandb"]:
         # Wandb configuration
