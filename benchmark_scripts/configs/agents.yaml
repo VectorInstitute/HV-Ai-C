@@ -71,7 +71,7 @@ DQN:
 FixedActionMaxComfort:
   name: "FixedAction_MaxComfort"
   # Number of episodes 
-  num_episodes: 100
+  num_episodes: 50
   # Fixed Action Index
   fixed_action_idx: 9
   # Number of episodes before logging
@@ -81,7 +81,7 @@ FixedActionMaxComfort:
 FixedActionMinPower:
   name: "FixedAction_MinPower"
   # Number of episodes 
-  num_episodes: 100
+  num_episodes: 50
   # Fixed Action Index
   fixed_action_idx: 0
   # Number of episodes before logging
@@ -91,7 +91,7 @@ FixedActionMinPower:
 RandomAgent:
   name: "RandomAgent"
   # Number of episodes 
-  num_episodes: 100
+  num_episodes: 50
   # Number of episodes before logging
   log_interval: 1
   # Wheather log into WandB
