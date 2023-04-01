@@ -40,7 +40,7 @@ if __name__ == "__main__":
     model_name = args.model_path.split("/")[-1]
     model_config = model_name.split("_")
     env_name = model_config[0].replace("train", "test")
-    algo_name = model_config[1]
+    algo_name = model_config[1].replace(".zip", "")
 
     env_config = env_config[env_name]
 
