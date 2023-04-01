@@ -61,6 +61,7 @@ if __name__ == "__main__":
         wandb.define_metric("rollout/*", step_metric="episode")
         wandb.define_metric("time/*", step_metric="step")
         wandb.define_metric("train/*", step_metric="step")
+        wandb.define_metric("action_idx", step_metric="step")
         # wandb.define_metric("rewards/*", step_metric="step")
         wandb.Table.MAX_ROWS = 200000
 
@@ -92,7 +93,7 @@ if __name__ == "__main__":
             total_power_no_units[i,
                                  timestep] = info["total_power_no_units"]
             if wandb.run:
-                log_dict = {"rollout/action_idx": action,
+                log_dict = {"action_idx": action,
                             "step": total_timesteps}
                 wandb.log(log_dict)
             # if wandb.run:
