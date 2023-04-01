@@ -16,4 +16,4 @@ export PATH=/pkgs/anaconda3/bin:$PATH
 source activate $HOME/condaenvs/sinergym
 
 # put your command here
-python $HOME/MBRL-HVAC-Energy-Optimization/benchmark_scripts/test.py --model-path "$HOME/MBRL-HVAC-Energy-Optimization/result_models/Eplus-5Zone-hot-discrete-train-v1_DQN_Linear_100_2023-03-10 11:34:23" --wandb
+python $HOME/MBRL-HVAC-Energy-Optimization/benchmark_scripts/test.py --model-path "$HOME/MBRL-HVAC-Energy-Optimization/result_models/Eplus-5Zone-hot-discrete-train-v1_DQN" --wandb --num-eval 1
