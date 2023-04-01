@@ -51,7 +51,7 @@ if __name__ == "__main__":
     agent = "QLearning" if "HNP" in algo_name else algo_name
     model = ALGOS[agent].load(args.model_path, env)
 
-    experiment_name = f"{env_config['name']}_{algo_name}_{env_config['reward_type']}_{args.num_eval}_{datetime.datetime.now():%Y-%m-%d %H:%M:%S}"
+    experiment_name = f"{env_config['name']}_{algo_name}_{env_config['reward_type']}_{datetime.datetime.now():%Y-%m-%d %H:%M:%S}"
 
     if args.wandb:
         wandb_run = wandb.init(name=experiment_name, project="hnp", entity="vector-institute-aieng",
