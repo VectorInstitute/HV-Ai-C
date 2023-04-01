@@ -305,12 +305,14 @@ class QLearningAgent:
                 self.state_visitation[prev_qtb_index[:-1]] += 1
                 curr_q = self.qtb[prev_qtb_index]
                 q_target = rew + self.gamma * next_value
+
                 new_q_value = curr_q + \
                     self.learning_rate * (q_target - curr_q)
                 new_q_value = -1 if np.isnan(new_q_value) else new_q_value
                 self.qtb[prev_qtb_index] = new_q_value
                 if new_q_value > curr_q or total_timesteps == 0:
                     self.vtb[prev_vtb_index] = new_q_value
+
                 total_timesteps += 1
                 timesteps += 1
                 prev_vtb_index = next_vtb_index
@@ -569,7 +571,7 @@ if __name__ == "__main__":
                         episodes_timesteps_mean = np.mean(episodes_timesteps)
                         if wandb.run:
                             wandb.log({"rollout/ep_rew_mean": episodes_return_mean, "rollout/ep_return": episode_reward,
-                                       "rollout/ep_len_mean": episodes_timesteps_mean, "time/total_timesteps": total_timesteps})
+                                       "rollout/ep_len_mean": episodes_timesteps_mean, "time/total_timesteps": total_timesteps, "step": total_timesteps, "episode": i})
                         logger.info(
                             f"------------------------\nepisode: {i}\nepisode_return: {episode_reward}\nepisode_timesteps: {timestep}\naverage_episodes_return: {episodes_return_mean}\naverage_episodes_timesteps: {episodes_timesteps_mean}\ntotal_timesteps: {total_timesteps}\n-------------------------")
                     break
@@ -595,7 +597,7 @@ if __name__ == "__main__":
                         episodes_timesteps_mean = np.mean(episodes_timesteps)
                         if wandb.run:
                             wandb.log({"rollout/ep_rew_mean": episodes_return_mean, "rollout/ep_return": episode_reward,
-                                       "rollout/ep_len_mean": episodes_timesteps_mean, "time/total_timesteps": total_timesteps})
+                                       "rollout/ep_len_mean": episodes_timesteps_mean, "time/total_timesteps": total_timesteps, "step": total_timesteps, "episode": i})
                         logger.info(
                             f"------------------------\nepisode: {i}\nepisode_return: {episode_reward}\nepisode_timesteps: {timestep}\naverage_episodes_return: {episodes_return_mean}\naverage_episodes_timesteps: {episodes_timesteps_mean}\ntotal_timesteps: {total_timesteps}\n-------------------------")
                     break

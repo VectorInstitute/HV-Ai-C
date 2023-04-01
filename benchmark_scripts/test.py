@@ -73,6 +73,7 @@ if __name__ == "__main__":
     comfort_penalty = np.zeros((args.num_eval, n_timesteps_episode))
     total_power_no_units = np.zeros((args.num_eval, n_timesteps_episode))
     temp = np.zeros((args.num_eval, n_timesteps_episode))
+    total_timesteps = 0
     for i in trange(args.num_eval):
         total_reward = 0
         obs = env.reset()
@@ -90,11 +91,16 @@ if __name__ == "__main__":
             abs_comfort[i, timestep] = info["abs_comfort"]
             total_power_no_units[i,
                                  timestep] = info["total_power_no_units"]
+            if wandb.run:
+                log_dict = {"rollout/action_idx": action,
+                            "step": total_timesteps}
+                wandb.log(log_dict)
             # if wandb.run:
             #     log_dict = {"rewards/total_power": total_power[i, timestep], "rewards/out_temp": out_temp[i, timestep], "rewards/temp": temp[i, timestep],
             #                 "rewards/abs_comfort": abs_comfort[i, timestep], "rewards/comfort_penalty": comfort_penalty[i, timestep], "rewards/total_power_no_units": total_power_no_units[i, timestep], "step": timestep}
             #     wandb.log(log_dict)
             timestep += 1
+            total_timesteps += 1
             if done:
                 returns.append(total_reward)
                 if wandb.run:
