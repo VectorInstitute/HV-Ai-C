@@ -74,6 +74,7 @@ if __name__ == "__main__":
     comfort_penalty = np.zeros((args.num_eval, n_timesteps_episode))
     total_power_no_units = np.zeros((args.num_eval, n_timesteps_episode))
     temp = np.zeros((args.num_eval, n_timesteps_episode))
+    total_action_idx = [[] for _ in range(n_timesteps_episode)]
     total_timesteps = 0
     for i in trange(args.num_eval):
         total_reward = 0
@@ -81,6 +82,7 @@ if __name__ == "__main__":
         timestep = 0
         while True:
             action = model.predict(obs)
+            total_action_idx[timestep].append(action)
             if not isinstance(action, np.int64):
                 action = int(action[0])
             state, reward, done, info = env.step(action)
@@ -110,21 +112,15 @@ if __name__ == "__main__":
                     wandb.log(log_dict)
                 break
     if wandb.run:
-        total_power_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
-            np.mean(total_power, axis=0))], columns=["timestep", "total_power"])
-        abs_comfort_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
-            np.mean(abs_comfort, axis=0))], columns=["timestep", "abs_comfort"])
-        comfort_penalty_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
-            np.mean(comfort_penalty, axis=0))], columns=["timestep", "comfort_penalty"])
-        total_power_no_units_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
-            np.mean(total_power_no_units, axis=0))], columns=["timestep", "total_power_no_units"])
-        out_temp_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
-            np.mean(out_temp, axis=0))], columns=["timestep", "out_temp"])
-        temp = wandb.Table(data=[(i, item) for i, item in enumerate(
-            np.mean(temp, axis=0))], columns=["timestep", "temp"])
-        wandb.log({"total_power": wandb.plot.line(
-            total_power_tbl, "timestep", "total_power"), "comfort_penalty": wandb.plot.line(
-            comfort_penalty_tbl, "timestep", "comfort_penalty"), "abs_comfort": wandb.plot.line(abs_comfort_tbl, "timestep", "abs_comfort"), "out_temp": wandb.plot.line(out_temp_tbl, "timestep", "out_temp"), "temp": wandb.plot.line(temp, "timestep", "temp"), "total_power_no_units": wandb.plot.line(total_power_no_units_tbl, "timestep", "total_power_no_units")})
+        avg_total_power = np.mean(total_power, axis=0)
+        avg_comfort_penalty = np.mean(comfort_penalty, axis=0)
+        avg_abs_comfort = np.mean(abs_comfort, axis=0)
+        avg_out_tmp = np.mean(out_temp, axis=0)
+        avg_total_power_no_units = np.mean(total_power_no_units, axis=0)
+        avg_tmp = np.mean(temp, axis=0)
+        for i in range(n_timesteps_episode):
+            wandb.log({"reward/total_power": avg_total_power[i], "reward/comfort_penalty": avg_comfort_penalty[i], "reward/abs_comfort": avg_abs_comfort[i], "reward/out_tmp": avg_out_tmp[i],
+                       "reward/total_power_no_units": avg_total_power_no_units[i], "reward/tmp": avg_tmp[i], "train/ep_action_idx": wandb.Histogram(total_action_idx[i]), "step": i})
     returns = np.array(returns)
     env.close()
     if wandb.run:

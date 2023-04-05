@@ -62,6 +62,7 @@ class LogEpisodeReturnCallback(BaseCallback):
         self.temp = np.zeros((num_episodes, self.n_timesteps_episode))
         self.episodes_return = np.zeros(num_episodes)
         self.ep_timesteps = np.zeros(num_episodes)
+        self.total_action_idx = [[] for _ in range(self.n_timesteps_episode)]
 
     def _on_step(self) -> bool:
         info = self.locals["infos"][0]
@@ -75,6 +76,7 @@ class LogEpisodeReturnCallback(BaseCallback):
         self.abs_comfort[i, timestep] = info["abs_comfort"]
         self.total_power_no_units[i,
                                   timestep] = info["total_power_no_units"]
+        self.total_action_idx[timestep].append(self.locals["actions"][0])
         # if wandb.run:
         #     log_dict = {"rewards/total_power": info["total_power"], "rewards/out_temp": info["out_temperature"], "rewards/temp": info["temperatures"][0],
         #                 "rewards/abs_comfort": info["abs_comfort"], "rewards/comfort_penalty": info["comfort_penalty"], "rewards/total_power_no_units": info["total_power_no_units"], "step": timestep}
@@ -89,21 +91,16 @@ class LogEpisodeReturnCallback(BaseCallback):
 
     def _on_training_end(self) -> None:
         if wandb.run:
-            total_power_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
-                np.mean(self.total_power, axis=0))], columns=["timestep", "total_power"])
-            abs_comfort_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
-                np.mean(self.abs_comfort, axis=0))], columns=["timestep", "abs_comfort"])
-            comfort_penalty_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
-                np.mean(self.comfort_penalty, axis=0))], columns=["timestep", "comfort_penalty"])
-            total_power_no_units_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
-                np.mean(self.total_power_no_units, axis=0))], columns=["timestep", "total_power_no_units"])
-            out_temp_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
-                np.mean(self.out_temp, axis=0))], columns=["timestep", "out_temp"])
-            temp = wandb.Table(data=[(i, item) for i, item in enumerate(
-                np.mean(self.temp, axis=0))], columns=["timestep", "temp"])
-            wandb.log({"total_power": wandb.plot.line(
-                total_power_tbl, "timestep", "total_power"), "comfort_penalty": wandb.plot.line(
-                comfort_penalty_tbl, "timestep", "comfort_penalty"), "abs_comfort": wandb.plot.line(abs_comfort_tbl, "timestep", "abs_comfort"), "out_temp": wandb.plot.line(out_temp_tbl, "timestep", "out_temp"), "temp": wandb.plot.line(temp, "timestep", "temp"), "total_power_no_units": wandb.plot.line(total_power_no_units_tbl, "timestep", "total_power_no_units")})
+            avg_total_power = np.mean(self.total_power, axis=0)
+            avg_comfort_penalty = np.mean(self.comfort_penalty, axis=0)
+            avg_abs_comfort = np.mean(self.abs_comfort, axis=0)
+            avg_out_tmp = np.mean(self.out_temp, axis=0)
+            avg_total_power_no_units = np.mean(
+                self.total_power_no_units, axis=0)
+            avg_tmp = np.mean(self.temp, axis=0)
+            for i in range(self.n_timesteps_episode):
+                wandb.log({"reward/total_power": avg_total_power[i], "reward/comfort_penalty": avg_comfort_penalty[i], "reward/abs_comfort": avg_abs_comfort[i], "reward/out_tmp": avg_out_tmp[i],
+                          "reward/total_power_no_units": avg_total_power_no_units[i], "reward/tmp": avg_tmp[i], "train/ep_action_idx": wandb.Histogram(self.total_action_idx[i]), "step": i})
 
 
 class QLearningAgent:
@@ -263,6 +260,8 @@ class QLearningAgent:
         episodes_timesteps = []
         ep_n = 0
         total_timesteps = 0
+        total_action_idx = [[]
+                            for _ in range(self.n_timesteps_episode)]
         total_power = np.zeros(
             (self.agent_config["num_episodes"], self.n_timesteps_episode))
         out_temp = np.zeros(
@@ -282,6 +281,7 @@ class QLearningAgent:
             prev_vtb_index, _ = self.get_vtb_idx_from_obs(obs)
             while True:
                 action = self.choose_action(prev_vtb_index)
+                total_action_idx[timesteps].append(action)
                 # Set value table to value of max action at that state
                 # self.vtb = np.nanmax(self.qtb, -1)
                 obs, rew, done, info = self.env.step(action)
@@ -342,21 +342,15 @@ class QLearningAgent:
                     ep_n += 1
                     break
         if wandb.run:
-            total_power_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
-                np.mean(total_power, axis=0))], columns=["timestep", "total_power"])
-            abs_comfort_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
-                np.mean(abs_comfort, axis=0))], columns=["timestep", "abs_comfort"])
-            comfort_penalty_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
-                np.mean(comfort_penalty, axis=0))], columns=["timestep", "comfort_penalty"])
-            total_power_no_units_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
-                np.mean(total_power_no_units, axis=0))], columns=["timestep", "total_power_no_units"])
-            out_temp_tbl = wandb.Table(data=[(i, item) for i, item in enumerate(
-                np.mean(out_temp, axis=0))], columns=["timestep", "out_temp"])
-            temp = wandb.Table(data=[(i, item) for i, item in enumerate(
-                np.mean(temp, axis=0))], columns=["timestep", "temp"])
-            wandb.log({"total_power": wandb.plot.line(
-                total_power_tbl, "timestep", "total_power"), "comfort_penalty": wandb.plot.line(
-                comfort_penalty_tbl, "timestep", "comfort_penalty"), "abs_comfort": wandb.plot.line(abs_comfort_tbl, "timestep", "abs_comfort"), "out_temp": wandb.plot.line(out_temp_tbl, "timestep", "out_temp"), "temp": wandb.plot.line(temp, "timestep", "temp"), "total_power_no_units": wandb.plot.line(total_power_no_units_tbl, "timestep", "total_power_no_units")})
+            avg_total_power = np.mean(total_power, axis=0)
+            avg_comfort_penalty = np.mean(comfort_penalty, axis=0)
+            avg_abs_comfort = np.mean(abs_comfort, axis=0)
+            avg_out_tmp = np.mean(out_temp, axis=0)
+            avg_total_power_no_units = np.mean(total_power_no_units, axis=0)
+            avg_tmp = np.mean(temp, axis=0)
+            for i in range(self.n_timesteps_episode):
+                wandb.log({"reward/total_power": avg_total_power[i], "reward/comfort_penalty": avg_comfort_penalty[i], "reward/abs_comfort": avg_abs_comfort[i], "reward/out_tmp": avg_out_tmp[i],
+                          "reward/total_power_no_units": avg_total_power_no_units[i], "reward/tmp": avg_tmp[i], "train/ep_action_idx": wandb.Histogram(total_action_idx[i]), "step": i})
 
     def save(self, save_path):
         data = self.__dict__.copy()
@@ -521,6 +515,7 @@ if __name__ == "__main__":
         wandb.define_metric("rollout/*", step_metric="episode")
         wandb.define_metric("time/*", step_metric="step")
         wandb.define_metric("train/*", step_metric="step")
+        wandb.define_metric("reward/*", step_metric="step")
         # wandb.define_metric("rewards/*", step_metric="step")
 
         wandb.Table.MAX_ROWS = 200000
