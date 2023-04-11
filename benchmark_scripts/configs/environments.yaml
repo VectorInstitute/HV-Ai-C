@@ -3,7 +3,9 @@ Eplus-5Zone-hot-discrete-train-v1:
   # Sinergym environment name
   name: Eplus-5Zone-hot-discrete-train-v1
   # Reward Type
-  reward_type: "Exponential"
+  reward_type: "Linear"
+  # Energy Weight
+  energy_weight: 0.7
   # Whether to normalise observations
   normalize: True
   # The observation variables to use for training, offset by 4 to account for time vars 
@@ -18,7 +20,9 @@ Eplus-5Zone-hot-discrete-test-v1:
   # Sinergym environment name
   name: Eplus-5Zone-hot-discrete-test-v1
   # Reward Type
-  reward_type: "Exponential"
+  reward_type: "Linear"
+  # Energy Weight
+  energy_weight: 0.7
   # Whether to normalise observations
   normalize: True
   # The observation variables to use for training, offset by 4 to account for time vars 
@@ -33,7 +37,9 @@ Eplus-warehouse-hot-discrete-train-v1:
   # Sinergym environment name
   name: Eplus-warehouse-hot-discrete-train-v1
   # Reward Type
-  reward_type: "Exponential"
+  reward_type: "Linear"
+  # Energy Weight
+  energy_weight: 0.7
   # Whether to normalise observations
   normalize: True
   # The observation variables to use for training, offset by 4 to account for time vars 
@@ -48,7 +54,9 @@ Eplus-warehouse-hot-discrete-test-v1:
   # Sinergym environment name
   name: Eplus-warehouse-hot-discrete-test-v1
   # Reward Type
-  reward_type: "Exponential"
+  reward_type: "Linear"
+  # Energy Weight
+  energy_weight: 0.7
   # Whether to normalise observations
   normalize: True
   # The observation variables to use for training, offset by 4 to account for time vars 
@@ -63,7 +71,9 @@ Eplus-warehouse-hot-discrete-stochastic-train-v1:
   # Sinergym environment name
   name: Eplus-warehouse-hot-discrete-stochastic-train-v1
   # Reward Type
-  reward_type: "Exponential"
+  reward_type: "Linear"
+  # Energy Weight
+  energy_weight: 0.7
   # Whether to normalise observations
   normalize: True
   # The observation variables to use for training, offset by 4 to account for time vars 
@@ -78,7 +88,9 @@ Eplus-warehouse-hot-discrete-stochastic-test-v1:
   # Sinergym environment name
   name: Eplus-warehouse-hot-discrete-stochastic-test-v1
   # Reward Type
-  reward_type: "Exponential"
+  reward_type: "Linear"
+  # Energy Weight
+  energy_weight: 0.7
   # Whether to normalise observations
   normalize: True
   # The observation variables to use for training, offset by 4 to account for time vars 

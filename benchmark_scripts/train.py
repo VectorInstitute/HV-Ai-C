@@ -176,10 +176,13 @@ class QLearningAgent:
 
         :return: Tuple of discretized observation space for continuous vars and the observation space for discrete vars
         """
-        tile_size = 1 / self.n_tiles
+        if len(self.n_tiles) == 1:
+            tile_size = 1 / np.array([self.n_tiles[0]]
+                                     * len(self.continuous_idx))
+        else:
+            tile_size = 1 / np.array(self.n_tiles)
         tile_coded_space = [
-            np.arange(0, 1 + tile_size, tile_size) for _ in self.continuous_idx
-        ]
+            np.arange(0, 1 + tile_size, tile_size) for tile_size, _ in zip(tile_size, self.continuous_idx)]
 
         return tuple(
             list(list(len(tiles) for tiles in tile_coded_space))
@@ -445,6 +448,8 @@ def create_env(env_config: dict = None) -> gym.Env:
     reward_type = {"Linear": LinearReward, "Exponential": ExpReward}
     env = gym.make(env_config["name"],
                    reward=reward_type[env_config["reward_type"]])
+    if (W_energy := env_config.get("energy_weight")):
+        env.env.reward_fn.W_energy = W_energy
 
     # Taken from https://github.com/ugr-sail/sinergym/blob/main/scripts/DRL_battery.py
     if "normalize" in env_config and env_config["normalize"] is True:
@@ -504,7 +509,7 @@ if __name__ == "__main__":
     env_config = env_config[args.env]
     agent_config = agent_config[args.algo]
 
-    experiment_name = f"{env_config['name']}_{'HNP-' if agent_config.get('hnp') else ''}{agent_config['name']}_{env_config['reward_type']}_{agent_config['num_tiles'] if agent_config.get('num_tiles') else 'NA'}_{datetime.now():%Y-%m-%d %H:%M:%S}"
+    experiment_name = f"{env_config['name']}_{'HNP-' if agent_config.get('hnp') else ''}{agent_config['name']}_{env_config['reward_type']}_{datetime.now():%Y-%m-%d}"
 
     if agent_config["wandb"]:
         # Wandb configuration
