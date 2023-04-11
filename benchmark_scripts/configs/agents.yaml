@@ -67,7 +67,7 @@ DQN:
   # Trained model output dir
   model_output_dir: "./result_models"
   # Wheather log into WandB
-  wandb: False
+  wandb: True
 FixedActionMaxComfort:
   name: "FixedAction_MaxComfort"
   # Number of episodes 
