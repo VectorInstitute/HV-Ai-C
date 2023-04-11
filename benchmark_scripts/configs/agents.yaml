@@ -23,7 +23,7 @@ HNP-QLearning:
   # Trained model output dir
   model_output_dir: "./result_models"
   # Wheather log into WandB
-  wandb: False
+  wandb: True
 QLearning:
   name: "QLearning"
   # Number of episodes 
@@ -49,7 +49,7 @@ QLearning:
   # Trained model output dir
   model_output_dir: "./result_models"
   # Wheather log into WandB
-  wandb: False
+  wandb: True
 DQN:
   name: "DQN"
   # Number of episodes 
