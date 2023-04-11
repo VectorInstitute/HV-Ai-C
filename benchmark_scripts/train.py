@@ -605,10 +605,22 @@ if __name__ == "__main__":
     env.close()
     if agent_config.get("model_output_dir"):
         if model:
+            algo_name = f"{'HNP-' if agent_config.get('hnp') else ''}{agent_config['name']}"
             save_path = agent_config["model_output_dir"] + \
-                "/" + experiment_name.rsplit('_', 3)[0]
+                "/" + env_config["name"] + "/" + algo_name
+            counter = 0
+            while pathlib.Path(f"{save_path}/{counter}").exists():
+                counter += 1
+            save_path += f"/{counter}"
+            pathlib.Path(save_path).mkdir(
+                parents=True, exist_ok=False)
             logger.info("Saving the trained model...")
-            model.save(save_path)
+            model.save(save_path + "/policy")
+            with open(save_path + "/config.yml", 'w') as f:
+                config_data = {}
+                config_data["env_config"] = env_config
+                config_data["agent_config"] = agent_config
+                yaml.dump(config_data, f, default_flow_style=False)
             logger.info(
                 f"The trained model is saved in {save_path}")
     if wandb.run:
