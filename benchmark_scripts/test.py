@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     model = ALGOS[algo_name].load(load_path + "/policy", env)
 
-    experiment_name = f"{env_name}_{algo_name}_{env_config['reward_type']}_{datetime.datetime.now():%Y-%m-%d}"
+    experiment_name = f"{env_name}_{'HNP-' if config['agent_config'].get('hnp') else ''}{algo_name}_{env_config['reward_type']}_{datetime.datetime.now():%Y-%m-%d}"
 
     if args.wandb:
         wandb_run = wandb.init(name=experiment_name, project="hnp", entity="vector-institute-aieng",
@@ -77,7 +77,7 @@ if __name__ == "__main__":
             total_action_idx[timestep].append(action)
             if not isinstance(action, np.int64):
                 action = int(action[0])
-            state, reward, done, info = env.step(action)
+            obs, reward, done, info = env.step(action)
             total_reward += reward
             total_power[i, timestep] = info["total_power"]
             out_temp[i, timestep] = info["out_temperature"]
