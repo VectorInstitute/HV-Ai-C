@@ -74,9 +74,9 @@ if __name__ == "__main__":
         timestep = 0
         while True:
             action = model.predict(obs)
-            total_action_idx[timestep].append(action)
             if not isinstance(action, np.int64):
                 action = int(action[0])
+            total_action_idx[timestep].append(action)
             obs, reward, done, info = env.step(action)
             total_reward += reward
             total_power[i, timestep] = info["total_power"]
