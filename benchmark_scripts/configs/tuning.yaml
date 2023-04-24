@@ -1,0 +1,42 @@
+agent:
+  name: "QLearning"
+  # Number of episodes 
+  num_episodes: 1
+  # Discount factor
+  gamma: 0.99
+  # Number of tiles for tile coding
+  num_tiles: [25,25,20,20]
+  # Exploration initial rate
+  initial_epsilon: 1.0
+  # Annealing rate for Epsilon
+  exploration_fraction: 0.12
+  # Epsilon final value
+  exploration_final_eps: 0.1
+  # Initial learning rate
+  learning_rate: !!float 1e-4
+  # Annealing rate for learning rate
+  lr_annealing: 1 
+  # Use HNP
+  hnp: True
+  # Number of episodes before logging
+  log_interval: 1
+  # Trained model output dir
+  model_output_dir: "./result_models"
+  # Wheather log into WandB
+  wandb: False
+env:
+  # Sinergym environment name
+  name: Eplus-5Zone-hot-discrete-train-v1
+  # Reward Type
+  reward_type: "Linear"
+  # Energy Weight
+  energy_weight: 0.7
+  # Whether to normalise observations
+  normalize: True
+  # The observation variables to use for training, offset by 4 to account for time vars 
+  obs_to_keep: [4, 5, 12, 14]
+  # The type of each observation variable: 
+  #   0 - slowly-changing continuous var
+  #   1 - fast-changing continuous var
+  #   2 - discrete var
+  mask: [0, 0, 0, 0]
