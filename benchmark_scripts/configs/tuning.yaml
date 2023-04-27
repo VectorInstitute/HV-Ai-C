@@ -1,7 +1,7 @@
 agent:
   name: "QLearning"
   # Number of episodes 
-  num_episodes: 1
+  num_episodes: 50
   # Discount factor
   gamma: 0.99
   # Number of tiles for tile coding
