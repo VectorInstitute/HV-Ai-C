@@ -16,4 +16,4 @@ export PATH=/pkgs/anaconda3/bin:$PATH
 source activate $HOME/condaenvs/sinergym
 
 # put your command here
-python $HOME/MBRL-HVAC-Energy-Optimization/benchmark_scripts/hyperparameter_tuning.py
+python $HOME/MBRL-HVAC-Energy-Optimization/benchmark_scripts/hyperparam_tuning.py
